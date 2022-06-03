@@ -4,7 +4,7 @@ import { LineItem } from '../../types'
 interface LineItemProps {
   userID?: number,
   lineItemObject: LineItem,
-  handleDeleteLineItem: (id: number, budgetID: number) => void,
+  handleDeleteLineItem: (e: any, id: number, budgetID: number) => void,
   budgetID: number
 }
 
@@ -24,7 +24,7 @@ const LineItems: React.FC<LineItemProps> = props => {
       <div>{'$'.concat(actToDisplay.toLocaleString())}</div>
       <div>{isFixed ? '✔️' : '✖️' }</div>
       <div>{isRecurring ? '✔️' : '✖️' }</div>
-      <div className='delete-button'><button onClick={() => handleDeleteLineItem(lineItemID, budgetID)}>X</button></div>
+      <div className='delete-button'><button onClick={(e: any) => handleDeleteLineItem(e, lineItemID, budgetID)}>X</button></div>
     </div>
   )
 }

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import BudgetCard from './BudgetCard'
 import { BudgetArray, HandleFunctions } from '../../types';
+
 
 interface BudgetCardListProps {
   handleDeleteBudget: (id: number) => void,
   createBudget: (e: React.FormEvent<HTMLFormElement>) => void,
-  handleDeleteLineItem: (id: number, budgetID: number) => void,
+  handleDeleteLineItem: (e: any, id: number, budgetID: number) => void,
   createLineItem: (e: React.FormEvent<HTMLFormElement>, budgetID: number) => void,
   budgetArray: BudgetArray,
   userID: number,

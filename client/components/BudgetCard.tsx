@@ -1,13 +1,13 @@
 import React from 'react';
 import LineItems from './LineItems'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Budget, LineItemArray, LineItem } from '../../types';
-
+import CrudContext from './crudContext';
 interface BudgetCardProps {
   handleDeleteBudget: (id: number) => void,
   createBudget: (e: React.FormEvent<HTMLFormElement>) => void,
-  handleDeleteLineItem: (id: number, budgetID: number) => void,
+  handleDeleteLineItem: (e:any, id: number, budgetID: number) => void,
   createLineItem: (e: React.FormEvent<HTMLFormElement>, budgetID: number) => void,
   userID: number,
   budgetObject: Budget
@@ -16,7 +16,7 @@ interface BudgetCardProps {
 const BudgetCard: React.FC<BudgetCardProps> = props => {
 const { userID, budgetObject, handleDeleteBudget, createBudget, handleDeleteLineItem, createLineItem } = props;
 const { lineItems, title, budget, budgetID } = budgetObject;
-
+const { myCrudCall } = useContext(CrudContext);
 
 const lineItemArray: JSX.Element[] = [];
 lineItems.map(lineItem => {
@@ -60,7 +60,7 @@ return (
         <h1>{title}</h1>
         <button 
           className = 'delete-budget-button'
-          onClick = {(e) => handleDeleteBudget(budgetID)}
+          onClick = {(e) => myCrudCall(e)}
         >
           Delete Budget
         </button>
