@@ -5,16 +5,12 @@ import axios from 'axios';
 import { Budget, LineItemArray, LineItem } from '../../types';
 import CrudContext from './crudContext';
 interface BudgetCardProps {
-  handleDeleteBudget: (id: number) => void,
-  createBudget: (e: React.FormEvent<HTMLFormElement>) => void,
-  handleDeleteLineItem: (e:any, id: number, budgetID: number) => void,
-  createLineItem: (e: React.FormEvent<HTMLFormElement>, budgetID: number) => void,
   userID: number,
   budgetObject: Budget
 }
 
 const BudgetCard: React.FC<BudgetCardProps> = props => {
-const { userID, budgetObject, handleDeleteBudget, createBudget, handleDeleteLineItem, createLineItem } = props;
+const { userID, budgetObject } = props;
 const { lineItems, title, budget, budgetID } = budgetObject;
 const { myCrudCall } = useContext(CrudContext);
 
@@ -23,7 +19,6 @@ lineItems.map(lineItem => {
   lineItemArray.push(<LineItems
   key={lineItem.lineItemID}
   lineItemObject={lineItem}
-  handleDeleteLineItem={handleDeleteLineItem}
   budgetID={budgetID}
   userID={userID}
   />)
@@ -52,7 +47,6 @@ const actualTotal = getActualTotal();
 //iterate through the open and create a new line per object
 return (
   <div className='budget-card'>
-    {/* DELETE BUDGET FORM */}
     
     {/* BUDGET META DATA */}
     <div className='budget-meta-data'>
@@ -60,7 +54,7 @@ return (
         <h1>{title}</h1>
         <button 
           className = 'delete-budget-button'
-          onClick = {(e) => myCrudCall(e)}
+          onClick = {(e) => myCrudCall(e, 'DELETE', budgetID)}
         >
           Delete Budget
         </button>
@@ -97,7 +91,7 @@ return (
 
     {/* ADD LINE ITEM FORM */}
     <div className='add-line-item-form'>
-      <form onSubmit = {(e) => createLineItem(e, budgetID)}>
+      <form onSubmit = {(e) => myCrudCall(e, 'POST', budgetID, 0)}>
         <input placeholder = 'description'></input>
         <input placeholder = 'category'></input>
         <input placeholder = 'expected amount'></input>

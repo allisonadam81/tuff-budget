@@ -4,25 +4,18 @@ import { BudgetArray, HandleFunctions } from '../../types';
 
 
 interface BudgetCardListProps {
-  handleDeleteBudget: (id: number) => void,
-  createBudget: (e: React.FormEvent<HTMLFormElement>) => void,
-  handleDeleteLineItem: (e: any, id: number, budgetID: number) => void,
-  createLineItem: (e: React.FormEvent<HTMLFormElement>, budgetID: number) => void,
   budgetArray: BudgetArray,
   userID: number,
 }
 
 const BudgetCardList: React.FC<BudgetCardListProps> = props => {
-  const { budgetArray, userID, handleDeleteBudget, createBudget, handleDeleteLineItem, createLineItem } = props;
+  const { budgetArray, userID } = props;
+  console.log(budgetArray);
 
   return (
     <div className='budget-list-container'>
       {budgetArray.map((budget, i) => <BudgetCard
          key={budget.budgetID} 
-         createBudget={createBudget} 
-         handleDeleteBudget={handleDeleteBudget}
-         createLineItem={createLineItem}
-         handleDeleteLineItem= {handleDeleteLineItem}
          userID={userID} 
          budgetObject={budget}/>
       )}

@@ -1,40 +1,96 @@
-import React, { Suspense, createContext, useState, useEffect } from 'react';
+import React, { Suspense, createContext, useState, useEffect, useReducer } from 'react';
 // const BudgetCardList = React.lazy (() => import ('./BudgetCardList'));
 import BudgetCardList from './BudgetCardList';
 import axios from 'axios'; 
 import { BudgetArray, LineItem, LineItemArray, Budget } from '../../types';
 import CrudContext from './crudContext';
+import BudgetCard from './BudgetCard';
 
+function budgetReducer (state: any, action: any) {
+  const deepCopyState = JSON.parse(JSON.stringify(state));
+  const { budgetArray } = deepCopyState;
+  switch (action.type) {
+    case 'RELOAD_BUDGETS' : {
+      console.log('here is state', state, 'here is action', action);
+      return { ...state, budgetArray: action.payload }
+    }
+    case 'DELETE_BUDGET' : {
+      for (let i = 0; i < budgetArray.length; i++){
+        if (budgetArray[i].budgetID === action.payload){
+          delete budgetArray[i];
+          return { ... state, budgetArray }
+        }
+      }
+      return state;
+    }
+    case 'CREATE_BUDGET' : {
+      budgetArray.push(action.payload);
+      return { budgetArray };
+    }
+    case 'PATCH_BUDGET' : {
+      const { title, budgetID, budget } = action.payload;
+      for (let i = 0; i < budgetArray.length; i++){
+        if (budgetArray[i].budgetID === budgetID){
+          budgetArray[i] = { ...budgetArray[i], title, budgetID, budget }
+          return { ...state, budgetArray }
+        }
+      }
+      return state;
+    }
+    case 'DELETE_LINEITEM' : {
+      const { budgetID, lineItemID } = action.payload;
+      for (let i = 0; i < budgetArray.length; i++){
+        if (budgetArray[i].budgetID === budgetID){
+          const { lineItemArray } = budgetArray[i];
+          lineItemArray.map((lineItem: LineItem, index: number) => {
+            if (lineItem.lineItemID === lineItemID){
+              delete lineItemArray[index];
+            }
+          })
+          return { ...state, budgetArray }
+        }
+      }
+    }
+    case 'CREATE_LINEITEM' : {
+      const { budgetID, lineItem } = action.payload;
+      for (let i = 0; i < budgetArray.length; i++){
+        if (budgetArray[i].budgetID === budgetID){
+          const { lineItemArray } = budgetArray[i];
+          lineItemArray.push(lineItem);
+          return { ...state, budgetArray }
+        }
+      }
+      return state;
+    }
+    case 'PATCH_LINEITEM' : {
+      return 'do not patch yet please';
+    }
+    default : {
+      return state
+    }
+  }
+
+};
 
 const MainContainer: React.FC = () => {
-
-  const [ budgetArray, setBudgetArray ] = useState<BudgetArray>([]);
-  const [ userID, setuserID ] = useState(1)
-  
-  // add budget functionality
-  const [ title, setTitle ] = useState('');
-  const [ budget, setBudget ] = useState(0);
-  
-  //make initial fetch to the database for all user budgets.
   const budgetFetch = async () => {
     const result = await axios.get(`http://localhost:3000/budgets/${userID}`)
-    setBudgetArray(result.data);
+    dispatch({type: 'RELOAD_BUDGETS', payload: result.data})
+    return result.data;
   }
-  
-  //on initial render, fetch the budgets from the database.
   useEffect(() => {
-    budgetFetch();
-    console.log('use effect fired off');
+    budgetFetch()
   }, [])
-  //-------------------------------CRUD CONSTROLLER----------------------------------------------//
-  function crudReducer () {
 
-  };
+  const [{ budgetArray, userID}, dispatch ] = useReducer(budgetReducer, { budgetArray: [], userID: 1});
+
+  //-------------------------------CRUD CONSTROLLER----------------------------------------------//
 
   function myCrudCall (e: any, method: string, budgetID: number, lineItemID: number | null = null){
     console.log('crud call fired off');
     e.preventDefault();
     if (!method) return alert('mistakenly called');
+    const { target } = e;
     let url: string, body: any;
     switch (lineItemID === null) {
       // if true, then we're dealing with a budget.
@@ -42,19 +98,23 @@ const MainContainer: React.FC = () => {
         url = `http://localhost:3000/budgets/${budgetID}`;
         switch (method){
           case 'POST' : {
-            const newBudget
-            axios.post(url, newBudget)
-          }
+            const title = target[0].value;
+            const budget = target[1].value;
+            target[0].value = '';
+            target[1].value = '';
+            const newBudget = { userID, title, budget, budgetID }
+              axios.post(url, newBudget).then((res: any) => {
+                newBudget.budgetID = res.data;
+                dispatch({type: 'CREATE_BUDGET', payload: newBudget});
+                return;
+              })
+              return;
+            }
           case 'DELETE' : {
               axios.delete(url).then((response: any) => {
                 // check if response has a status
-                const updatedBudgetArray = JSON.parse(JSON.stringify(budgetArray));
-                for(let i = 0; i < updatedBudgetArray.length; i++) {
-                  if (updatedBudgetArray[i].budgetID === budgetID){
-                    delete updatedBudgetArray[i];
-                  }
-                }
-                return setBudgetArray(updatedBudgetArray)
+                dispatch({type: 'DELETE_BUDGET', payload: budgetID})
+                return;
               })
               .catch((err: any) => {
                 console.log(err);
@@ -62,7 +122,7 @@ const MainContainer: React.FC = () => {
               })
             }
           case 'PATCH' : {
-
+            return 'please do not patch yet please';
           }
           default : {
             return 'budgetID fell through whole switch case, which should not happen'
@@ -75,55 +135,42 @@ const MainContainer: React.FC = () => {
         url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`;
         switch (method){
           case 'POST' : {
-              const description = e.target[0].value;
-              const category = e.target[1].value;
-              const expAmount = parseInt(e.target[2].value);
-              let actAmount = parseInt(e.target[3].value);
-              const isFixed = e.target[4].checked;
-              const isRecurring = e.target[5].checked;
+              const description = target[0].value;
+              const category = target[1].value;
+              const expAmount = parseInt(target[2].value);
+              let actAmount = parseInt(target[3].value);
+              const isFixed = target[4].checked;
+              const isRecurring = target[5].checked;
               
-              e.target[0].value = '';
-              e.target[1].value = '';
-              e.target[2].value = '';
-              e.target[3].value = '';
-              e.target[4].checked = false;
-              e.target[5].checked = false;
+              target[0].value = '';
+              target[1].value = '';
+              target[2].value = '';
+              target[3].value = '';
+              target[4].checked = false;
+              target[5].checked = false;
               
               if (!actAmount) actAmount = -1;
               //console.log('this is the budgetID ', budgetID)
-              const newLineItem = { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID }
+              const newLineItem: any = { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID }
           
               axios.post(url, newLineItem)
               .then((res: any) => {
                 if (actAmount === -1) actAmount = 0;
-                const lineItem:LineItem = { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID: res.data };
-                const newBudgetArray = JSON.parse(JSON.stringify(budgetArray));
-                for (let budget of newBudgetArray){
-                  if (budget.budgetID === budgetID){
-                     budget.lineItems.push(lineItem)
-                    }
-                  }
-                setBudgetArray(newBudgetArray)
+                newLineItem.lineItemID = res.data;
+                dispatch({type: 'CREATE_LINEITEM', payload: { newLineItem, budgetID }})
+                return;
               })
             }
           case 'DELETE' : {
             axios.delete(url).then((response: any) => {
-                const newBudgetArray = JSON.parse(JSON.stringify(budgetArray));
-                for (let budget of newBudgetArray){
-                  if (budget.budgetID === budgetID){
-                    for (let i = 0; i < budget.lineItems.length; i++){
-                      if (budget.lineItems[i].lineItemID === lineItemID){
-                        console.log('lineItemFound ')
-                        delete budget.lineItems[i];
-                      }
-                    }
-                  }
-                }
-                setBudgetArray(newBudgetArray)
+              // send stuff off to the reducer to set state.
+              dispatch({type: 'DELETE_LINEITEM', payload: lineItemID})
+              console.log('delete fired off')
+              return;
               })
             }
           case 'PATCH' : {
-
+            return
           }
           default : {
             return 'fell through whole switch case which should never happen'
@@ -143,94 +190,12 @@ const MainContainer: React.FC = () => {
 // Additionally, immediately change the color to a grey scale something until the database recieves a good response.
 
   // ------------------------------------- Card CRUD Functionality ---------------------------------------
-  
-  // handles the deleting of a budget card
-  function handleDeleteBudget(id: number) {
-    axios.delete(`http://localhost:3000/budgets/${id}`)
-    .then(() => {
-      const updatedBudgetArray = JSON.parse(JSON.stringify(budgetArray));
-      for(let i = 0; i < updatedBudgetArray.length; i++) {
-        if (updatedBudgetArray[i].budgetID === id) {
-          updatedBudgetArray.splice(i,1)
-        }
-      }
-      setBudgetArray(updatedBudgetArray)
-    })
-  }
-
-  // handles the creating of budget card 
+  const [newBudget, setNewBudget] = useState({ title: '', budgetID: 0, budget: '', lineItems: []})
 
   // ------------------------------------- Line Item CRUD Functionality ------------------------------------------
-  // handles the deleting of a line item
-  function handleDeleteLineItem(e: any, id: number, budgetID: number) {
-    console.log(e);
-    axios.delete(`http://localhost:3000/lineItems/${id}`)
-    .then(() => {
-      const newBudgetArray = JSON.parse(JSON.stringify(budgetArray));
-      for (let budget of newBudgetArray){
-        if (budget.budgetID === budgetID){
-          for (let i = 0; i < budget.lineItems.length; i++){
-            if (budget.lineItems[i].lineItemID === id){
-              console.log('lineItemFound ')
-              delete budget.lineItems[i];
-              break;
-            }
-          }
-        }
-      }
-      setBudgetArray(newBudgetArray)
-    })
-  }
-  
-  function createLineItem (e: any, budgetID: number) {
-    e.preventDefault()
-    console.log(e);
-    const description = e.target[0].value;
-    const category = e.target[1].value;
-    const expAmount = parseInt(e.target[2].value);
-    let actAmount = parseInt(e.target[3].value);
-    const isFixed = e.target[4].checked;
-    const isRecurring = e.target[5].checked;
-    
-    e.target[0].value = '';
-    e.target[1].value = '';
-    e.target[2].value = '';
-    e.target[3].value = '';
-    e.target[4].checked = false;
-    e.target[5].checked = false;
-    
-    if (!actAmount) actAmount = -1;
-    //console.log('this is the budgetID ', budgetID)
-    const newLineItem = { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID }
-
-    axios.post('http://localhost:3000/lineItems', newLineItem)
-    .then(res => {
-      //console.log(res.data);
-      if (actAmount === -1) actAmount = 0;
-      const lineItem:LineItem = { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID: res.data };
-      const newBudgetArray = JSON.parse(JSON.stringify(budgetArray));
-      for (let budget of newBudgetArray){
-        if (budget.budgetID === budgetID){
-           budget.lineItems.push(lineItem)
-          }
-        }
-      setBudgetArray(newBudgetArray)
-    })
-  }
-  
-  //handles the changing of title and budget
-  function handleChange(e:React.ChangeEvent<HTMLInputElement>, field:string) {
-    e.preventDefault()
-    
-    if (field === 'title') {
-      setTitle(e.target.value)
-    } else {
-      setBudget(parseInt(e.target.value))
-    }
-  }
   
   return (
-    <CrudContext.Provider value={{ myCrudCall }}>
+    <CrudContext.Provider value={{ myCrudCall, userID }}>
     <div>
       {/* <Suspense fallback={<div>Loading...</div>}> */}
       <BudgetCardList
@@ -238,9 +203,12 @@ const MainContainer: React.FC = () => {
       userID={userID}
       />
       <div className='create-budget-form'>
-        <form onSubmit = {(e) => createBudget(e)}>
-          <input className = 'name-of-project' placeholder = 'name of project' onChange = {(e) => handleChange(e, 'title')}></input>
-          <input className = 'budget-amount'placeholder = 'budget' onChange = {(e) => handleChange(e, 'budget')}></input>
+        <form onSubmit = {(e) => myCrudCall(e, 'POST', 0, null)}>
+          <input className='name-of-project' placeholder='name of project' onChange={(e: any) => {
+            setNewBudget({ ...newBudget, title: e.target.value })
+          }}>
+          </input>
+          <input className='budget-amount' placeholder='budget' onChange={() => console.log('changed')}></input>
           <button>Add Budget</button>
         </form>
       </div>
@@ -251,7 +219,3 @@ const MainContainer: React.FC = () => {
 }
 
 export default MainContainer;
-
-// function createBudget(e: any) {
-//   throw new Error('Function not implemented.');
-// }

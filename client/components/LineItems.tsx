@@ -1,17 +1,17 @@
-import React from 'react';
-import { LineItem } from '../../types'
+import React, { useContext, useState } from 'react';
+import { LineItem } from '../../types';
+import CrudContext from './crudContext';
 
 interface LineItemProps {
   userID?: number,
   lineItemObject: LineItem,
-  handleDeleteLineItem: (e: any, id: number, budgetID: number) => void,
   budgetID: number
 }
 
 const LineItems: React.FC<LineItemProps> = props => {
-  const { lineItemObject, handleDeleteLineItem, budgetID } = props;
+  const { lineItemObject, budgetID } = props;
   const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID } = lineItemObject;
-
+  const { myCrudCall } = useContext(CrudContext);
   // convert non-spent actual amounts to zero
   let actToDisplay = actAmount;
   if (actToDisplay === -1) actToDisplay = 0;
@@ -24,7 +24,7 @@ const LineItems: React.FC<LineItemProps> = props => {
       <div>{'$'.concat(actToDisplay.toLocaleString())}</div>
       <div>{isFixed ? '✔️' : '✖️' }</div>
       <div>{isRecurring ? '✔️' : '✖️' }</div>
-      <div className='delete-button'><button onClick={(e: any) => handleDeleteLineItem(e, lineItemID, budgetID)}>X</button></div>
+      <div className='delete-button'><button onClick={(e: any) => myCrudCall(e, 'DELETE', budgetID, lineItemID)}>X</button></div>
     </div>
   )
 }
