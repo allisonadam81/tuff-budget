@@ -5,18 +5,15 @@ import { BudgetArray, HandleFunctions } from '../../types';
 
 interface BudgetCardListProps {
   budgetArray: BudgetArray,
-  userID: number,
 }
 
-const BudgetCardList: React.FC<BudgetCardListProps> = props => {
-  const { budgetArray, userID } = props;
-  console.log(budgetArray);
+const BudgetCardList: React.FC<BudgetCardListProps> = ({ budgetArray }) => {
 
   return (
     <div className='budget-list-container'>
-      {budgetArray.map((budget, i) => <BudgetCard
-         key={budget.budgetID} 
-         userID={userID} 
+      {budgetArray.map((budget, index) => <BudgetCard
+         key={budget.budgetID}
+         bIndex={index}
          budgetObject={budget}/>
       )}
     </div>

@@ -3,24 +3,24 @@ import LineItems from './LineItems'
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Budget, LineItemArray, LineItem } from '../../types';
-import CrudContext from './crudContext';
+import { CrudContext } from './crudContext';
 interface BudgetCardProps {
-  userID: number,
   budgetObject: Budget
+  bIndex: number
 }
 
-const BudgetCard: React.FC<BudgetCardProps> = props => {
-const { userID, budgetObject } = props;
+const BudgetCard: React.FC<BudgetCardProps> = ({ bIndex, budgetObject }) => {
 const { lineItems, title, budget, budgetID } = budgetObject;
 const { myCrudCall } = useContext(CrudContext);
 
 const lineItemArray: JSX.Element[] = [];
-lineItems.map(lineItem => {
+lineItems.map((lineItem, index) => {
   lineItemArray.push(<LineItems
   key={lineItem.lineItemID}
   lineItemObject={lineItem}
+  liIndex={index}
+  bIndex={bIndex}
   budgetID={budgetID}
-  userID={userID}
   />)
 });
 

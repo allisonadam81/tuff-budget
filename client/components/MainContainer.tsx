@@ -3,7 +3,7 @@ import React, { Suspense, createContext, useState, useEffect, useReducer } from 
 import BudgetCardList from './BudgetCardList';
 import axios from 'axios'; 
 import { BudgetArray, LineItem, LineItemArray, Budget } from '../../types';
-import CrudContext from './crudContext';
+import { CrudContext } from './crudContext';
 import BudgetCard from './BudgetCard';
 
 function budgetReducer (state: any, action: any) {
@@ -25,7 +25,7 @@ function budgetReducer (state: any, action: any) {
     }
     case 'CREATE_BUDGET' : {
       budgetArray.push(action.payload);
-      return { budgetArray };
+      return {...state, budgetArray };
     }
     case 'PATCH_BUDGET' : {
       const { title, budgetID, budget } = action.payload;
@@ -69,28 +69,38 @@ function budgetReducer (state: any, action: any) {
       return state
     }
   }
-
 };
 
+
+//----------------------------------------------START COMPONENT--------------------------------------------//
+
+
 const MainContainer: React.FC = () => {
+  // declare a fetching method to get budgets upon render.
   const budgetFetch = async () => {
     const result = await axios.get(`http://localhost:3000/budgets/${userID}`)
     dispatch({type: 'RELOAD_BUDGETS', payload: result.data})
     return result.data;
   }
+
+  //upon component did mount, go fetch budgets.
   useEffect(() => {
     budgetFetch()
   }, [])
 
+  //
   const [{ budgetArray, userID}, dispatch ] = useReducer(budgetReducer, { budgetArray: [], userID: 1});
 
   //-------------------------------CRUD CONSTROLLER----------------------------------------------//
 
-  function myCrudCall (e: any, method: string, budgetID: number, lineItemID: number | null = null){
+  function myCrudCall (e: any, newObject: any, method: string, budgetID: number, lineItemID: number | null = null){
     console.log('crud call fired off');
     e.preventDefault();
+    // if no method passed in, then return out immediately.
     if (!method) return alert('mistakenly called');
+    // take the target body off of the event object for future use.
     const { target } = e;
+    // declare a url and body
     let url: string, body: any;
     switch (lineItemID === null) {
       // if true, then we're dealing with a budget.
@@ -98,14 +108,9 @@ const MainContainer: React.FC = () => {
         url = `http://localhost:3000/budgets/${budgetID}`;
         switch (method){
           case 'POST' : {
-            const title = target[0].value;
-            const budget = target[1].value;
-            target[0].value = '';
-            target[1].value = '';
-            const newBudget = { userID, title, budget, budgetID }
-              axios.post(url, newBudget).then((res: any) => {
-                newBudget.budgetID = res.data;
-                dispatch({type: 'CREATE_BUDGET', payload: newBudget});
+              axios.post(url, newObject).then((res: any) => {
+                newObject.budgetID = res.data;
+                dispatch({type: 'CREATE_BUDGET', payload: newObject});
                 return;
               })
               return;
@@ -189,8 +194,27 @@ const MainContainer: React.FC = () => {
 // On unfocus, send a database call with the object attached to the node as 'updateObject'.
 // Additionally, immediately change the color to a grey scale something until the database recieves a good response.
 
-  // ------------------------------------- Card CRUD Functionality ---------------------------------------
-  const [newBudget, setNewBudget] = useState({ title: '', budgetID: 0, budget: '', lineItems: []})
+  const blankBudget: Budget = { title: '', budgetID: 0, budget: 0, lineItems: [] }
+  const newBudgetActions = {
+    title: 'TITLE',
+    budget: 'BUDGET'
+  }
+  const [title, setTitle] = useState('');
+  const [budget, setBudget] = useState(0);
+
+  function newBudgetHandleChange (e: any, action: string) {
+    switch (action) {
+      case newBudgetActions.title : {
+        return setTitle(e.target.value)
+      }
+      case newBudgetActions.budget : {
+        return setBudget(Number(e.target.value))
+      }
+      default : {
+        return 'incorrect field sent'
+      }
+    }
+  }
 
   // ------------------------------------- Line Item CRUD Functionality ------------------------------------------
   
@@ -200,15 +224,20 @@ const MainContainer: React.FC = () => {
       {/* <Suspense fallback={<div>Loading...</div>}> */}
       <BudgetCardList
       budgetArray={budgetArray}
-      userID={userID}
       />
       <div className='create-budget-form'>
-        <form onSubmit = {(e) => myCrudCall(e, 'POST', 0, null)}>
-          <input className='name-of-project' placeholder='name of project' onChange={(e: any) => {
-            setNewBudget({ ...newBudget, title: e.target.value })
+        <form onSubmit = {(e) => {
+          const newBudget: Budget = {
+            title, budget, budgetID: 0, lineItems: []
+          }
+            myCrudCall(e, newBudget, 'POST', 0, null);
+            setTitle('');
+            setBudget(0);
+            return;
           }}>
+          <input className='name-of-project' placeholder='name of project' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.title)}>
           </input>
-          <input className='budget-amount' placeholder='budget' onChange={() => console.log('changed')}></input>
+          <input className='budget-amount' placeholder='budget' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.budget)}></input>
           <button>Add Budget</button>
         </form>
       </div>
