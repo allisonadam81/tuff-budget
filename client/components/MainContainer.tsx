@@ -3,73 +3,9 @@ import React, { Suspense, createContext, useState, useEffect, useReducer } from 
 import BudgetCardList from './BudgetCardList';
 import axios from 'axios'; 
 import { BudgetArray, LineItem, LineItemArray, Budget } from '../../types';
-import { CrudContext } from './crudContext';
+import { CrudContext } from './CrudContext';
 import BudgetCard from './BudgetCard';
-
-function budgetReducer (state: any, action: any) {
-  const deepCopyState = JSON.parse(JSON.stringify(state));
-  const { budgetArray } = deepCopyState;
-  switch (action.type) {
-    case 'RELOAD_BUDGETS' : {
-      console.log('here is state', state, 'here is action', action);
-      return { ...state, budgetArray: action.payload }
-    }
-    case 'DELETE_BUDGET' : {
-      for (let i = 0; i < budgetArray.length; i++){
-        if (budgetArray[i].budgetID === action.payload){
-          delete budgetArray[i];
-          return { ... state, budgetArray }
-        }
-      }
-      return state;
-    }
-    case 'CREATE_BUDGET' : {
-      budgetArray.push(action.payload);
-      return {...state, budgetArray };
-    }
-    case 'PATCH_BUDGET' : {
-      const { title, budgetID, budget } = action.payload;
-      for (let i = 0; i < budgetArray.length; i++){
-        if (budgetArray[i].budgetID === budgetID){
-          budgetArray[i] = { ...budgetArray[i], title, budgetID, budget }
-          return { ...state, budgetArray }
-        }
-      }
-      return state;
-    }
-    case 'DELETE_LINEITEM' : {
-      const { budgetID, lineItemID } = action.payload;
-      for (let i = 0; i < budgetArray.length; i++){
-        if (budgetArray[i].budgetID === budgetID){
-          const { lineItemArray } = budgetArray[i];
-          lineItemArray.map((lineItem: LineItem, index: number) => {
-            if (lineItem.lineItemID === lineItemID){
-              delete lineItemArray[index];
-            }
-          })
-          return { ...state, budgetArray }
-        }
-      }
-    }
-    case 'CREATE_LINEITEM' : {
-      const { budgetID, lineItem } = action.payload;
-      for (let i = 0; i < budgetArray.length; i++){
-        if (budgetArray[i].budgetID === budgetID){
-          const { lineItemArray } = budgetArray[i];
-          lineItemArray.push(lineItem);
-          return { ...state, budgetArray }
-        }
-      }
-      return state;
-    }
-    case 'PATCH_LINEITEM' : {
-      return 'do not patch yet please';
-    }
-    default : {
-      return state
-    }
-  }
-};
+import { budgetReducer } from './BudgetReducer';
 
 
 //----------------------------------------------START COMPONENT--------------------------------------------//
@@ -93,24 +29,24 @@ const MainContainer: React.FC = () => {
 
   //-------------------------------CRUD CONSTROLLER----------------------------------------------//
 
-  function myCrudCall (e: any, newObject: any, method: string, budgetID: number, lineItemID: number | null = null){
-    console.log('crud call fired off');
+  function myCrudCall (e: any, dataObject: any, method: string, budgetID: number, lineItemID: number | null = null){
     e.preventDefault();
+    console.log(e)
     // if no method passed in, then return out immediately.
     if (!method) return alert('mistakenly called');
     // take the target body off of the event object for future use.
     const { target } = e;
     // declare a url and body
-    let url: string, body: any;
+    let url: string;
     switch (lineItemID === null) {
       // if true, then we're dealing with a budget.
       case true : {
         url = `http://localhost:3000/budgets/${budgetID}`;
         switch (method){
           case 'POST' : {
-              axios.post(url, newObject).then((res: any) => {
-                newObject.budgetID = res.data;
-                dispatch({type: 'CREATE_BUDGET', payload: newObject});
+              axios.post(url, dataObject).then((res: any) => {
+                dataObject.budgetID = res.data;
+                dispatch({type: 'CREATE_BUDGET', payload: dataObject});
                 return;
               })
               return;
@@ -118,7 +54,8 @@ const MainContainer: React.FC = () => {
           case 'DELETE' : {
               axios.delete(url).then((response: any) => {
                 // check if response has a status
-                dispatch({type: 'DELETE_BUDGET', payload: budgetID})
+                const { bIndex } = dataObject;
+                dispatch({type: 'DELETE_BUDGET', payload: { budgetID, bIndex }})
                 return;
               })
               .catch((err: any) => {
@@ -140,37 +77,18 @@ const MainContainer: React.FC = () => {
         url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`;
         switch (method){
           case 'POST' : {
-              const description = target[0].value;
-              const category = target[1].value;
-              const expAmount = parseInt(target[2].value);
-              let actAmount = parseInt(target[3].value);
-              const isFixed = target[4].checked;
-              const isRecurring = target[5].checked;
-              
-              target[0].value = '';
-              target[1].value = '';
-              target[2].value = '';
-              target[3].value = '';
-              target[4].checked = false;
-              target[5].checked = false;
-              
-              if (!actAmount) actAmount = -1;
-              //console.log('this is the budgetID ', budgetID)
-              const newLineItem: any = { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID }
-          
+              const { newLineItem, bIndex } = dataObject;
               axios.post(url, newLineItem)
               .then((res: any) => {
-                if (actAmount === -1) actAmount = 0;
                 newLineItem.lineItemID = res.data;
-                dispatch({type: 'CREATE_LINEITEM', payload: { newLineItem, budgetID }})
+                dispatch({type: 'CREATE_LINEITEM', payload: { newLineItem, budgetID, bIndex }})
                 return;
               })
             }
           case 'DELETE' : {
             axios.delete(url).then((response: any) => {
-              // send stuff off to the reducer to set state.
-              dispatch({type: 'DELETE_LINEITEM', payload: lineItemID})
-              console.log('delete fired off')
+              const { bIndex, liIndex } = dataObject;
+              dispatch({type: 'DELETE_LINEITEM', payload: { lineItemID, bIndex, liIndex }})
               return;
               })
             }

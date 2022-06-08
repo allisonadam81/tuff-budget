@@ -3,7 +3,9 @@ import LineItems from './LineItems'
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Budget, LineItemArray, LineItem } from '../../types';
-import { CrudContext } from './crudContext';
+import { CrudContext } from './CrudContext';
+import LineItemForm from './LineItemForm';
+
 interface BudgetCardProps {
   budgetObject: Budget
   bIndex: number
@@ -54,7 +56,7 @@ return (
         <h1>{title}</h1>
         <button 
           className = 'delete-budget-button'
-          onClick = {(e) => myCrudCall(e, 'DELETE', budgetID)}
+          onClick = {(e) => myCrudCall(e, null, 'DELETE', budgetID)}
         >
           Delete Budget
         </button>
@@ -89,19 +91,11 @@ return (
       </div>
     </div>
 
-    {/* ADD LINE ITEM FORM */}
-    <div className='add-line-item-form'>
-      <form onSubmit = {(e) => myCrudCall(e, 'POST', budgetID, 0)}>
-        <input placeholder = 'description'></input>
-        <input placeholder = 'category'></input>
-        <input placeholder = 'expected amount'></input>
-        <input placeholder = 'actual amount'></input>
-        {/* add check boxes for recocurring and fixed */}
-        Fixed?: <input type='checkbox' name='Fixed'></input>
-        Recurring?: <input type='checkbox' name='Recurring'></input>
-        <button>Submit</button>
-      </form>
-    </div>
+    {/* ADD LINE ITEM FORM -- TURN THIS INTO A COMPONENT */}
+    <LineItemForm
+      budgetID={budgetID}
+      bIndex={bIndex}
+    />
   </div>
   )
 }
