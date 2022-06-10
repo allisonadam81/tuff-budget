@@ -15,8 +15,7 @@ const newLineItemActions = {
   recurring: 'recurring'
 }
 
-const LineItemForm = (props: LineItemFormProps) => {
-  const { bIndex, budgetID } = props;
+const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
 
   const { myCrudCall } = useContext(CrudContext);
 
@@ -32,7 +31,7 @@ const LineItemForm = (props: LineItemFormProps) => {
   const [ newLineForm, setNewLineForm ] = useState(initialFormState)
 // set up a reducer or a switch to handle all of the typing.
 
-  const handleChange = (e: any, type: any) => {
+  const handleChange = (e: any, type: string) => {
     const { value, checked } = e.target;
       if (type === newLineItemActions.description || type === newLineItemActions.category){
         return setNewLineForm({ ...newLineForm, [type]: value })

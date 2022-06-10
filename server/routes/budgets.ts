@@ -20,7 +20,7 @@ router.post(
 );
 
 router.delete(
-  '/:id',
+  '/:budgetID',
   budgetsController.deleteBudget,
   function (req: Request, res: Response) {
     res.status(200).send('Successfully deleted budget');

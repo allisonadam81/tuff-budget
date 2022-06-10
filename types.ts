@@ -1,6 +1,6 @@
 export type BudgetArray = Budget[] | []
 
-export type LineItemArray = LineItem[] | []
+export type LineItemArray = LineItemType[] | []
 
 export type Budget = {
   title: string,
@@ -9,7 +9,7 @@ export type Budget = {
   lineItems: LineItemArray
 };
 
-export type LineItem = {
+export type LineItemType = {
   lineItemID: number,
   description: string,
   category: string,

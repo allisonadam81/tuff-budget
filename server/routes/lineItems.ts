@@ -8,7 +8,7 @@ const lineItemController = require('../controllers/lineItemController');
 
 
 // REQUEST HANDLERS
-router.delete('/:id', lineItemController.deleteLineItem, function (req: Request, res: Response) {
+router.delete('/:lineItemID', lineItemController.deleteLineItem, function (req: Request, res: Response) {
   res.status(200).send('Successfully deleted line item');
 });
   

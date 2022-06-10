@@ -2,10 +2,10 @@ import React, { Suspense, createContext, useState, useEffect, useReducer } from 
 // const BudgetCardList = React.lazy (() => import ('./BudgetCardList'));
 import BudgetCardList from './BudgetCardList';
 import axios from 'axios'; 
-import { BudgetArray, LineItem, LineItemArray, Budget } from '../../types';
+import { BudgetArray, LineItemType, LineItemArray, Budget } from '../../types';
 import { CrudContext } from './CrudContext';
 import BudgetCard from './BudgetCard';
-import { budgetReducer } from './BudgetReducer';
+import { budgetReducer, budgetReducerActionTypes as types } from './BudgetReducer';
 
 
 //----------------------------------------------START COMPONENT--------------------------------------------//
@@ -15,7 +15,7 @@ const MainContainer: React.FC = () => {
   // declare a fetching method to get budgets upon render.
   const budgetFetch = async () => {
     const result = await axios.get(`http://localhost:3000/budgets/${userID}`)
-    dispatch({type: 'RELOAD_BUDGETS', payload: result.data})
+    dispatch({type: types.reloadBudgets, payload: result.data})
     return result.data;
   }
 
@@ -32,21 +32,18 @@ const MainContainer: React.FC = () => {
   function myCrudCall (e: any, dataObject: any, method: string, budgetID: number, lineItemID: number | null = null){
     e.preventDefault();
     console.log(e)
-    // if no method passed in, then return out immediately.
     if (!method) return alert('mistakenly called');
-    // take the target body off of the event object for future use.
     const { target } = e;
-    // declare a url and body
     let url: string;
     switch (lineItemID === null) {
       // if true, then we're dealing with a budget.
       case true : {
-        url = `http://localhost:3000/budgets/${budgetID}`;
+        url = `http://localhost:3000/budgets/${userID}/${budgetID}`;
         switch (method){
           case 'POST' : {
               axios.post(url, dataObject).then((res: any) => {
                 dataObject.budgetID = res.data;
-                dispatch({type: 'CREATE_BUDGET', payload: dataObject});
+                dispatch({type: types.createBudget, payload: dataObject});
                 return;
               })
               return;
@@ -55,7 +52,7 @@ const MainContainer: React.FC = () => {
               axios.delete(url).then((response: any) => {
                 // check if response has a status
                 const { bIndex } = dataObject;
-                dispatch({type: 'DELETE_BUDGET', payload: { budgetID, bIndex }})
+                dispatch({type: types.deleteBudget, payload: { budgetID, bIndex }})
                 return;
               })
               .catch((err: any) => {
@@ -81,14 +78,14 @@ const MainContainer: React.FC = () => {
               axios.post(url, newLineItem)
               .then((res: any) => {
                 newLineItem.lineItemID = res.data;
-                dispatch({type: 'CREATE_LINEITEM', payload: { newLineItem, budgetID, bIndex }})
+                dispatch({type: types.createLineItem, payload: { newLineItem, budgetID, bIndex }})
                 return;
               })
             }
           case 'DELETE' : {
             axios.delete(url).then((response: any) => {
               const { bIndex, liIndex } = dataObject;
-              dispatch({type: 'DELETE_LINEITEM', payload: { lineItemID, bIndex, liIndex }})
+              dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, liIndex }})
               return;
               })
             }
@@ -137,7 +134,7 @@ const MainContainer: React.FC = () => {
   // ------------------------------------- Line Item CRUD Functionality ------------------------------------------
   
   return (
-    <CrudContext.Provider value={{ myCrudCall, userID }}>
+    <CrudContext.Provider value={{ myCrudCall, userID, dispatch }}>
     <div>
       {/* <Suspense fallback={<div>Loading...</div>}> */}
       <BudgetCardList

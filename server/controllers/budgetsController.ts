@@ -1,6 +1,6 @@
 export {};
 
-import { LineItem, NextFunction } from '../../types';
+import { LineItemType, NextFunction } from '../../types';
 import { Request, Response } from 'express';
 const db = require('../models/dbModels');
 
@@ -8,7 +8,7 @@ interface UserBudgetType {
   title: string;
   budget: number;
   budgetID: number;
-  lineItems: LineItem[];
+  lineItems: LineItemType[];
 }
 
 interface BudgetQueryType {
@@ -75,7 +75,7 @@ const budgetsController = {
       try {
         const queryResults = await db.query(sqlQuery, params);
         queryResults.rows.forEach((lineItem:any) => {
-          const formattedLI:LineItem = {
+          const formattedLI:LineItemType = {
             lineItemID: lineItem.id,
             description: lineItem.description,
             category: lineItem.category,

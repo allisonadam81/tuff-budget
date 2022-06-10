@@ -1,15 +1,15 @@
 export {};
 
 // SET UP APP
-import {Express} from 'express'
+import { Express } from 'express'
 const cors = require('cors');
 const express = require('express');
-const app:Express = express();
+const app: Express = express();
 const port = 3000;
 
 app.use(cors({origin: 'http://localhost:8080', credentials: true}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 
 // REQUIRE ROUTERS
 const lineItemRouter = require('./routes/lineItems');
