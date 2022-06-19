@@ -1,18 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { CrudContext } from './CrudContext';
+import { LineItemActions } from './Actions';
 
 type LineItemFormProps = {
   budgetID: number,
   bIndex: number
-}
-
-const newLineItemActions = {
-  description: 'description',
-  category: 'category',
-  expAmount: 'expAmount',
-  actAmount: 'actAmount',
-  fixed: 'fixed',
-  recurring: 'recurring'
 }
 
 const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
@@ -33,13 +25,13 @@ const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
 
   const handleChange = (e: any, type: string) => {
     const { value, checked } = e.target;
-      if (type === newLineItemActions.description || type === newLineItemActions.category){
+      if (type === LineItemActions.description || type === LineItemActions.category){
         return setNewLineForm({ ...newLineForm, [type]: value })
       }
-      if (type === newLineItemActions.expAmount || type === newLineItemActions.actAmount){
+      if (type === LineItemActions.expAmount || type === LineItemActions.actAmount){
         return setNewLineForm({ ...newLineForm, [type]: Number(value) })
       }
-      if (type === newLineItemActions.fixed || type === newLineItemActions.recurring){
+      if (type === LineItemActions.isFixed || type === LineItemActions.isRecurring){
         return setNewLineForm({ ...newLineForm, [type]: checked })
       }
     }
@@ -54,13 +46,13 @@ const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
         return;
       }
       }>
-        <input placeholder='description' onChange={(e: any) => handleChange(e, newLineItemActions.description)}></input>
-        <input placeholder='category' onChange={(e: any) => handleChange(e, newLineItemActions.category)}></input>
-        <input placeholder='expected amount' type='number' onChange={(e: any) => handleChange(e, newLineItemActions.expAmount)}></input>
-        <input placeholder='actual amount' type='number' onChange={(e: any) => handleChange(e, newLineItemActions.actAmount)}></input>
+        <input placeholder='description' onChange={(e: any) => handleChange(e, LineItemActions.description)}></input>
+        <input placeholder='category' onChange={(e: any) => handleChange(e, LineItemActions.category)}></input>
+        <input placeholder='expected amount' type='number' onChange={(e: any) => handleChange(e, LineItemActions.expAmount)}></input>
+        <input placeholder='actual amount' type='number' onChange={(e: any) => handleChange(e, LineItemActions.actAmount)}></input>
         {/* add check boxes for recocurring and fixed */}
-        Fixed?: <input type='checkbox' name='Fixed' onChange={(e: any) => handleChange(e, newLineItemActions.fixed)}></input>
-        Recurring?: <input type='checkbox' name='Recurring' onChange={(e: any) => handleChange(e, newLineItemActions.recurring)}></input>
+        Fixed?: <input type='checkbox' name='Fixed' onChange={(e: any) => handleChange(e, LineItemActions.isFixed)}></input>
+        Recurring?: <input type='checkbox' name='Recurring' onChange={(e: any) => handleChange(e, LineItemActions.isRecurring)}></input>
         <button>Submit</button>
       </form>
   </div>

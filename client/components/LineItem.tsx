@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { LineItemType } from '../../types';
 import { CrudContext } from './CrudContext';
 import LineItemEditing from './LineItemEditing';
+
 type LineItemProps = {
   lineItem: LineItemType,
   budgetID: number,
@@ -12,13 +13,20 @@ type LineItemProps = {
 const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
   const { myCrudCall } = useContext(CrudContext);
 
-  const colorTheme = { default: 'green', editing: 'green', processing: 'grey' }
+  const colorTheme = {
+    default: 'green',
+    editing: 'green',
+    processing: 'grey'
+  };
+
   const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID } = lineItem;
+
   const [ editing, setEditing ] = useState(false);
   const [ theme, setTheme ] = useState(colorTheme.default);
 
-  if (!editing) { return (
-  <div className='line-item'>
+  if (!editing) {
+    return (
+  <div className='line-item' onClick={(e: any) => setEditing(true)}>
     <div>{description}</div>
     <div>{category}</div>
     <div>{'$'.concat(expAmount.toLocaleString())}</div>
@@ -27,7 +35,9 @@ const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
     <div>{isRecurring ? '✔️' : '✖️' }</div>
     <div className='delete-button'><button onClick={(e: any) => myCrudCall(e, null, 'DELETE', budgetID, lineItemID)}>X</button></div>
   </div>
-  )} else { return (
+
+  )} else {
+    return (
     <LineItemEditing
       budgetID={budgetID}
       lineItemID={lineItemID}
@@ -39,6 +49,8 @@ const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
       isRecurring={isRecurring}
       liIndex={liIndex}
       bIndex={bIndex}
+      setEditing={setEditing}
+      editing={editing}
     />
   )}
 }
