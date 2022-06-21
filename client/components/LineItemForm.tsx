@@ -1,23 +1,27 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { CrudContext } from './CrudContext';
 import { LineItemActions } from './Actions';
+import { LineItemArray, LineItemType } from '../../types';
+import LineItems from './LineItems';
 
 type LineItemFormProps = {
   budgetID: number,
-  bIndex: number
+  bIndex: number,
+  lineItems: LineItemArray
 }
 
-const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
+const LineItemForm = ({ bIndex, budgetID, lineItems }: LineItemFormProps) => {
 
-  const { myCrudCall } = useContext(CrudContext);
+  const { myCrudCall } =  useContext(CrudContext);
 
   const initialFormState = {
     description: '',
     category: '',
-    expAmount: 0,
-    actAmount: 0,
-    fixed: false,
-    recurring: false
+    expAmount: '',
+    actAmount: '',
+    isFixed: false,
+    isRecurring: false,
+    lIndex: lineItems.length
   }
 
   const [ newLineForm, setNewLineForm ] = useState(initialFormState)
@@ -29,7 +33,7 @@ const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
         return setNewLineForm({ ...newLineForm, [type]: value })
       }
       if (type === LineItemActions.expAmount || type === LineItemActions.actAmount){
-        return setNewLineForm({ ...newLineForm, [type]: Number(value) })
+        return setNewLineForm({ ...newLineForm, [type]: Number(value.replace(/\D/g, '')) })
       }
       if (type === LineItemActions.isFixed || type === LineItemActions.isRecurring){
         return setNewLineForm({ ...newLineForm, [type]: checked })
@@ -40,7 +44,6 @@ const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
     <div className='add-line-item-form'>
       <form onSubmit = {(e) => {
         const newLineData = { newLineForm, bIndex }
-        console.log(newLineData);
         myCrudCall(e, newLineData, 'POST', budgetID, 0);
         setNewLineForm(initialFormState);
         return;
@@ -48,8 +51,8 @@ const LineItemForm = ({ bIndex, budgetID }: LineItemFormProps) => {
       }>
         <input placeholder='description' onChange={(e: any) => handleChange(e, LineItemActions.description)}></input>
         <input placeholder='category' onChange={(e: any) => handleChange(e, LineItemActions.category)}></input>
-        <input placeholder='expected amount' type='number' onChange={(e: any) => handleChange(e, LineItemActions.expAmount)}></input>
-        <input placeholder='actual amount' type='number' onChange={(e: any) => handleChange(e, LineItemActions.actAmount)}></input>
+        <input placeholder='expected amount' value={newLineForm.expAmount} onChange={(e: any) => handleChange(e, LineItemActions.expAmount)}></input>
+        <input placeholder='actual amount' value={newLineForm.actAmount} onChange={(e: any) => handleChange(e, LineItemActions.actAmount)}></input>
         {/* add check boxes for recocurring and fixed */}
         Fixed?: <input type='checkbox' name='Fixed' onChange={(e: any) => handleChange(e, LineItemActions.isFixed)}></input>
         Recurring?: <input type='checkbox' name='Recurring' onChange={(e: any) => handleChange(e, LineItemActions.isRecurring)}></input>

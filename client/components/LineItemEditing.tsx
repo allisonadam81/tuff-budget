@@ -6,28 +6,27 @@ import { Methods } from './Actions'
 type LineItemEditingProps = {
   description: string,
   category: string,
-  expAmount: number,
-  actAmount: number,
+  expAmount: number | string,
+  actAmount: number | string,
   isFixed: boolean,
   isRecurring: boolean,
   budgetID: number,
   lineItemID: number
-  liIndex: number,
+  lIndex: number,
   bIndex: number,
   editing: boolean,
   setEditing: any
 }
 
 const LineItemEditing = (props: LineItemEditingProps) => {
-  const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID, liIndex, bIndex, setEditing } = props;
+  const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID, lIndex, bIndex, setEditing } = props;
   const { myCrudCall } = useContext(CrudContext);
 
-  const [ editedObject, setEditedObject ]: any = useState({ bIndex, liIndex })
+  const [ editedObject, setEditedObject ]: any = useState({ bIndex, lIndex })
 
   const handleChange = (e: any, type: string) => {
     const { value, checked } = e.target;
-    console.log(checked);
-    console.log(editedObject);
+
       if (type === LineItemActions.description || type === LineItemActions.category){
         return setEditedObject({ ...editedObject, [type]: value })
       }
@@ -44,10 +43,9 @@ const LineItemEditing = (props: LineItemEditingProps) => {
   return (
     <form className='line-item' onSubmit={(e:any) => {
       e.preventDefault();
-      setEditing(false);
-      return;
       myCrudCall(e, editedObject, Methods.patch, budgetID, lineItemID);
-      setEditedObject({ bIndex, liIndex })
+      setEditedObject({ bIndex, lIndex })
+      setEditing(false);
       return;
     }
     }>

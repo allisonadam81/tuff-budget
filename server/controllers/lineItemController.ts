@@ -7,8 +7,8 @@ const db = require('../models/dbModels');
 const lineItemController = {
   // middleware to delete an existing line item in the database
   deleteLineItem: (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-
+    const { lineItemID, budgetID } = req.params;
+    const params: Number[] = [Number(lineItemID)]
     // define query to delete specified budget
     const sqlQuery = `
     UPDATE lineitems
@@ -17,8 +17,9 @@ const lineItemController = {
     `;
 
     // query the database and insert new budget
-    db.query(sqlQuery, [id])
+    db.query(sqlQuery, params)
       .then((queryResults: any) => {
+        res.locals.queryResults = queryResults;
         return next();
       })
       .catch((err: any) => {
@@ -43,6 +44,7 @@ const lineItemController = {
       actAmount,
       isFixed,
       isRecurring,
+      lIndex
     } = req.body;
 
     const params = [
@@ -53,11 +55,12 @@ const lineItemController = {
       actAmount || -1,
       isFixed,
       isRecurring,
+      lIndex
     ];
 
     const sqlQuery = `
-    INSERT INTO lineitems (budgetID, description, category, expAmount, actAmount, isFixed, isRecurring, isActive)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+    INSERT INTO lineitems (budgetID, description, category, expAmount, actAmount, isFixed, isRecurring, isActive, lIndex)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8)
     RETURNING ID;
     `;
 
@@ -65,7 +68,6 @@ const lineItemController = {
     db.query(sqlQuery, params)
       .then((queryResults: any) => {
         res.locals.lineItemID = queryResults.rows[0].id;
-
         return next();
       })
       .catch((err: any) => {

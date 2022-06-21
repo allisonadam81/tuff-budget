@@ -12,8 +12,8 @@ const ExpectedSpentData = ({ lineItems, budget }: ExpectedSpentDataProps) => {
 
   let expectedTotal = 0, actualTotal = 0;
     lineItems.map((li: LineItemType) => {
-      expectedTotal += li.expAmount;
-      if (li.actAmount >= 0) actualTotal += li.actAmount;
+      expectedTotal += Number(li.expAmount);
+      if (li.actAmount >= 0) actualTotal += Number(li.actAmount);
     })
     
 

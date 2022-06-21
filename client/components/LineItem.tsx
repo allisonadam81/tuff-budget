@@ -6,11 +6,10 @@ import LineItemEditing from './LineItemEditing';
 type LineItemProps = {
   lineItem: LineItemType,
   budgetID: number,
-  liIndex: number,
   bIndex: number
 }
 
-const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
+const LineItem = ({ lineItem, budgetID, bIndex }: LineItemProps) => {
   const { myCrudCall } = useContext(CrudContext);
 
   const colorTheme = {
@@ -19,7 +18,7 @@ const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
     processing: 'grey'
   };
 
-  const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID } = lineItem;
+  const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID, lIndex } = lineItem;
 
   const [ editing, setEditing ] = useState(false);
   const [ theme, setTheme ] = useState(colorTheme.default);
@@ -33,7 +32,9 @@ const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
     <div>{'$'.concat(actAmount.toLocaleString())}</div>
     <div>{isFixed ? '✔️' : '✖️' }</div>
     <div>{isRecurring ? '✔️' : '✖️' }</div>
-    <div className='delete-button'><button onClick={(e: any) => myCrudCall(e, null, 'DELETE', budgetID, lineItemID)}>X</button></div>
+    <div className='delete-button'><button onClick={(e: any) => {
+      myCrudCall(e, { bIndex, lIndex }, 'DELETE', budgetID, lineItemID)}
+    }>X</button></div>
   </div>
 
   )} else {
@@ -47,7 +48,7 @@ const LineItem = ({ lineItem, budgetID, liIndex, bIndex }: LineItemProps) => {
       actAmount={actAmount}
       isFixed={isFixed}
       isRecurring={isRecurring}
-      liIndex={liIndex}
+      lIndex={lIndex}
       bIndex={bIndex}
       setEditing={setEditing}
       editing={editing}

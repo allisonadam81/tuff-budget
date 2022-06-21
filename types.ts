@@ -5,7 +5,8 @@ export type LineItemArray = LineItemType[] | []
 export type Budget = {
   title: string,
   budgetID: number,
-  budget: number
+  budget: number,
+  bIndex?: number,
   lineItems: LineItemArray
 };
 
@@ -13,10 +14,11 @@ export type LineItemType = {
   lineItemID: number,
   description: string,
   category: string,
-  expAmount: number,
-  actAmount: number,
+  expAmount: number | string,
+  actAmount: number | string,
   isFixed: boolean,
   isRecurring: boolean,
+  lIndex: number
 }
 
 export type LineItemResponse = {

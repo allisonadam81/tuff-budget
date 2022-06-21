@@ -12,15 +12,15 @@ router.get('/:userID', budgetsController.getBudgets, budgetsController.getLineIt
 );
 
 router.post(
-  '/',
+  '/:userID/:budgetID',
   budgetsController.createBudget,
-  function (req: Request, res: Response) {
+  (req: Request, res: Response) => {
     res.status(200).json(res.locals.createdBudget);
   }
 );
 
 router.delete(
-  '/:budgetID',
+  '/:userID/:budgetID',
   budgetsController.deleteBudget,
   function (req: Request, res: Response) {
     res.status(200).send('Successfully deleted budget');

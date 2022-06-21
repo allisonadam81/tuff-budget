@@ -10,7 +10,6 @@ import { budgetReducer, budgetReducerActionTypes as types } from './BudgetReduce
 
 //----------------------------------------------START COMPONENT--------------------------------------------//
 
-
 const MainContainer: React.FC = () => {
   // declare a fetching method to get budgets upon render.
   const budgetFetch = async () => {
@@ -25,13 +24,13 @@ const MainContainer: React.FC = () => {
   }, [])
 
   //
-  const [{ budgetArray, userID}, dispatch ] = useReducer(budgetReducer, { budgetArray: [], userID: 1});
+  const [{ budgetArray, userID}, dispatch ] = useReducer(budgetReducer, { budgetArray: [], userID: 2});
 
   //-------------------------------CRUD CONSTROLLER----------------------------------------------//
 
   function myCrudCall (e: any, dataObject: any, method: string, budgetID: number, lineItemID: number | null = null){
     e.preventDefault();
-    console.log(e)
+    //console.log(e)
     if (!method) return alert('mistakenly called');
     const { target } = e;
     let url: string;
@@ -41,18 +40,20 @@ const MainContainer: React.FC = () => {
         url = `http://localhost:3000/budgets/${userID}/${budgetID}`;
         switch (method){
           case 'POST' : {
-              axios.post(url, dataObject).then((res: any) => {
-                dataObject.budgetID = res.data;
+              axios.post(url, dataObject)
+              .then((res: any) => {
+                dataObject = res.data;
                 dispatch({type: types.createBudget, payload: dataObject});
                 return;
               })
+              .catch((err: any) => console.log(err));
               return;
             }
           case 'DELETE' : {
               axios.delete(url).then((response: any) => {
                 // check if response has a status
                 const { bIndex } = dataObject;
-                dispatch({type: types.deleteBudget, payload: { budgetID, bIndex }})
+                dispatch({type: types.deleteBudget, payload: { bIndex }})
                 return;
               })
               .catch((err: any) => {
@@ -84,8 +85,8 @@ const MainContainer: React.FC = () => {
             }
           case 'DELETE' : {
             axios.delete(url).then((response: any) => {
-              const { bIndex, liIndex } = dataObject;
-              dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, liIndex }})
+              const { bIndex, lIndex } = dataObject;
+              dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, lIndex }})
               return;
               })
             }
@@ -109,13 +110,12 @@ const MainContainer: React.FC = () => {
 // On unfocus, send a database call with the object attached to the node as 'updateObject'.
 // Additionally, immediately change the color to a grey scale something until the database recieves a good response.
 
-  const blankBudget: Budget = { title: '', budgetID: 0, budget: 0, lineItems: [] }
   const newBudgetActions = {
     title: 'TITLE',
     budget: 'BUDGET'
   }
   const [title, setTitle] = useState('');
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState('');
 
   function newBudgetHandleChange (e: any, action: string) {
     switch (action) {
@@ -123,7 +123,7 @@ const MainContainer: React.FC = () => {
         return setTitle(e.target.value)
       }
       case newBudgetActions.budget : {
-        return setBudget(Number(e.target.value))
+        return setBudget(e.target.value.replace(/\D/g, ''))
       }
       default : {
         return 'incorrect field sent'
@@ -143,16 +143,16 @@ const MainContainer: React.FC = () => {
       <div className='create-budget-form'>
         <form onSubmit = {(e) => {
           const newBudget: Budget = {
-            title, budget, budgetID: 0, lineItems: []
+            title, budget: Number(budget), budgetID: 0, lineItems: [], bIndex: budgetArray.length
           }
             myCrudCall(e, newBudget, 'POST', 0, null);
             setTitle('');
-            setBudget(0);
+            setBudget('');
             return;
           }}>
-          <input className='name-of-project' placeholder='name of project' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.title)}>
+          <input className='name-of-project' value={title} placeholder='name of project' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.title)}>
           </input>
-          <input className='budget-amount' placeholder='budget' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.budget)}></input>
+          <input className='budget-amount' value={budget} placeholder='budget' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.budget)}></input>
           <button>Add Budget</button>
         </form>
       </div>

@@ -13,15 +13,20 @@ export const budgetReducerActionTypes = {
 export function budgetReducer (state: any, action: any) {
   // create a copy of the state and pull the budgetArray off of it to be manipulated throughout the reducer.
   const copyState = JSON.parse(JSON.stringify(state));
-  const { budgetArray } = copyState;
+  let { budgetArray } = copyState;
   switch (action.type) {
     case budgetReducerActionTypes.reloadBudgets : {
       return { ...state, budgetArray: action.payload }
     }
     case budgetReducerActionTypes.deleteBudget : {
-      const { bIndex, budgetID } = action.payload;
-      const newBudgetArray = budgetArray.filter((budget: any, i: number) => i !== bIndex)
-      return { ...state, newBudgetArray }
+      const { bIndex } = action.payload;
+      delete budgetArray[bIndex]
+      budgetArray = budgetArray.flat();
+      for (let i = bIndex; i < budgetArray.length; i++){
+        budgetArray[i].bIndex = i - 1;
+      }
+      console.log('new budget array', budgetArray);
+      return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.createBudget : {
       budgetArray.push(action.payload);

@@ -17,6 +17,7 @@ const budgetsRouter = require('./routes/budgets');
 // const usersRouter = require('./routes/users');
 
 // CREATE ROUTES
+// app.use('/login', we will need to verify, then set a cookie and a session.
 app.use('/lineItems', lineItemRouter);
 app.use('/budgets', budgetsRouter);
 // app.use('/users', usersRouter);

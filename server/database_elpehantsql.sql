@@ -8,6 +8,7 @@ CREATE TABLE lineitems (
 	isFixed BOOLEAN NOT NULL,
 	isRecurring BOOLEAN NOT NULL,
 	isActive BOOLEAN NOT NULL DEFAULT true,
+  lIndex integer NOT NULL,
 	FOREIGN KEY (budgetID) REFERENCES budgets (ID)
 );
 
@@ -15,10 +16,10 @@ CREATE TABLE lineitems (
 CREATE TABLE users (
 	ID SERIAL PRIMARY KEY,
 	username VARCHAR(255) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
 	firstName VARCHAR(255) NOT NULL,
 	lastName VARCHAR(255) NOT NULL,
 	email VARCHAR(255) NOT NULL,
-	pwHashed VARCHAR(255) NOT NULL
 );
 
 
@@ -28,10 +29,11 @@ CREATE TABLE budgets (
 	title VARCHAR(255) NOT NULL,
 	budget INTEGER NOT NULL,
 	isActive BOOLEAN NOT NULL DEFAULT true,
+  bIndex integer NOT NULL,
 	FOREIGN KEY (userID) REFERENCES users(ID)
 );
 
 
-INSERT INTO users (username, firstName, lastName, email, pwHashed)
+INSERT INTO users (username, firstName, lastName, email, password)
 VALUES('JBradbeer', 'Jake', 'Bradbeer', 'jake@gmail.com', '1234'),
 ('aallison', 'Adam', 'Allison', 'adam@gmail.com', '1234');
