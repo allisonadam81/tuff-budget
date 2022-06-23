@@ -40,6 +40,7 @@ const budgetsController = {
       .then((queryResults: any) => {
         queryResults.rows.forEach((budget: BudgetQueryType) => {
           // convert the budget data to the frontend ready format
+          console.log(budget.bindex);
           const userBudget: UserBudgetType = {
             title: budget.title,
             budget: budget.budget,

@@ -14,6 +14,7 @@ export function budgetReducer (state: any, action: any) {
   // create a copy of the state and pull the budgetArray off of it to be manipulated throughout the reducer.
   const copyState = JSON.parse(JSON.stringify(state));
   let { budgetArray } = copyState;
+  
   switch (action.type) {
     case budgetReducerActionTypes.reloadBudgets : {
       return { ...state, budgetArray: action.payload }

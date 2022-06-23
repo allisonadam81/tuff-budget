@@ -12,12 +12,17 @@ const BudgetCardList: React.FC<BudgetCardListProps> = ({ budgetArray }) => {
   const budgetCardsArray = new Array(budgetArray.length);
 
   budgetArray.forEach((budget: Budget, i: Number) => {
-    //console.log(budgetCardsArray);
+    if (budget.bIndex === null){
+      budgetCardsArray[budgetCardsArray.length] = <BudgetCard
+      key={budget.budgetID}
+      budgetObject={budget}
+      />
+    } else {
     budgetCardsArray[budget.bIndex] = <BudgetCard
     key={budget.budgetID}
     budgetObject={budget}
     />
-  })
+  }})
   return (
     <>
     {budgetCardsArray}

@@ -1,4 +1,4 @@
-import React, { Suspense, createContext, useState, useEffect, useReducer } from 'react';
+import React, { Suspense, createContext, useState, useLayoutEffect, useReducer } from 'react';
 // const BudgetCardList = React.lazy (() => import ('./BudgetCardList'));
 import BudgetCardList from './BudgetCardList';
 import axios from 'axios'; 
@@ -19,13 +19,13 @@ const MainContainer: React.FC = () => {
   }
 
   //upon component did mount, go fetch budgets.
-  useEffect(() => {
+  useLayoutEffect(() => {
     budgetFetch()
   }, [])
 
   //
-  const [{ budgetArray, userID}, dispatch ] = useReducer(budgetReducer, { budgetArray: [], userID: 2});
-
+  const [{ budgetArray, userID}, dispatch ] = useReducer(budgetReducer, { budgetArray: [], userID: 2 });
+  
   //-------------------------------CRUD CONSTROLLER----------------------------------------------//
 
   function myCrudCall (e: any, dataObject: any, method: string, budgetID: number, lineItemID: number | null = null){
