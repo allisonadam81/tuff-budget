@@ -1,16 +1,24 @@
 import React, { useContext, useState } from 'react';
 import { LineItemType } from '../../types';
 import { CrudContext } from './CrudContext';
+import { budgetReducerActionTypes as types } from './BudgetReducer';
 import LineItemEditing from './LineItemEditing';
+import axios from 'axios';
 
 type LineItemProps = {
   lineItem: LineItemType,
   budgetID: number,
-  bIndex: number
+  bIndex: number,
+  lIndex: number,
 }
 
-const LineItem = ({ lineItem, budgetID, bIndex }: LineItemProps) => {
-  const { myCrudCall } = useContext(CrudContext);
+const LineItem = ({ lineItem, budgetID, bIndex, lIndex }: LineItemProps) => {
+
+  const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID } = lineItem;
+
+  let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`
+
+  const { dispatch } = useContext(CrudContext);
 
   const colorTheme = {
     default: 'green',
@@ -18,10 +26,19 @@ const LineItem = ({ lineItem, budgetID, bIndex }: LineItemProps) => {
     processing: 'grey'
   };
 
-  const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID, lIndex } = lineItem;
 
   const [ editing, setEditing ] = useState(false);
   const [ theme, setTheme ] = useState(colorTheme.default);
+
+  const deleteLineItem = (e: any) => {
+    e.preventDefault();
+    axios.delete(url)
+    .then((response: any) => {
+      dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, lIndex }})
+      return;
+      })
+    .catch(err => console.log(err));
+  }
 
   if (!editing) {
     return (
@@ -33,8 +50,8 @@ const LineItem = ({ lineItem, budgetID, bIndex }: LineItemProps) => {
     <div>{isFixed ? '✔️' : '✖️' }</div>
     <div>{isRecurring ? '✔️' : '✖️' }</div>
     <div className='delete-button'><button onClick={(e: any) => {
-      myCrudCall(e, { bIndex, lIndex }, 'DELETE', budgetID, lineItemID)}
-    }>X</button></div>
+      deleteLineItem(e);
+    }}>X</button></div>
   </div>
 
   )} else {

@@ -8,7 +8,7 @@ CREATE TABLE lineitems (
 	isFixed BOOLEAN NOT NULL,
 	isRecurring BOOLEAN NOT NULL,
 	isActive BOOLEAN NOT NULL DEFAULT true,
-  lIndex integer NOT NULL,
+  lIndex integer,
 	FOREIGN KEY (budgetID) REFERENCES budgets (ID)
 );
 

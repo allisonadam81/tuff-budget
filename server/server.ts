@@ -1,5 +1,3 @@
-export {};
-
 // SET UP APP
 import { Express } from 'express'
 const cors = require('cors');

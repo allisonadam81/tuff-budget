@@ -11,12 +11,12 @@ import BudgetMetaData from './BudgetMetaData';
 
 interface BudgetCardProps {
   budgetObject: Budget
+  bIndex: number
 }
 
-const BudgetCard: React.FC<BudgetCardProps> = ({ budgetObject }) => {
+const BudgetCard: React.FC<BudgetCardProps> = ({ budgetObject, bIndex }) => {
 
-const { lineItems, title, budget, budgetID, bIndex} = budgetObject;
-const { myCrudCall } = useContext(CrudContext);
+const { lineItems, title, budget, budgetID } = budgetObject;
 
 //iterate through the open and create a new line per object
 return (

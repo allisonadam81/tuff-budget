@@ -6,11 +6,3 @@ export const LineItemActions = {
   isFixed: 'isFixed',
   isRecurring: 'isRecurring'
 }
-
-export const Methods = {
-  get: 'GET',
-  post: 'POST',
-  put: 'PUT',
-  patch: 'PATCH',
-  delete: 'DELETE'
-}

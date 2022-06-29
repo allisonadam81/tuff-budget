@@ -6,7 +6,6 @@ export type Budget = {
   title: string,
   budgetID: number,
   budget: number,
-  bIndex?: number,
   lineItems: LineItemArray
 };
 
@@ -14,11 +13,10 @@ export type LineItemType = {
   lineItemID: number,
   description: string,
   category: string,
-  expAmount: number | string,
-  actAmount: number | string,
+  expAmount: number,
+  actAmount: number,
   isFixed: boolean,
   isRecurring: boolean,
-  lIndex: number
 }
 
 export type LineItemResponse = {

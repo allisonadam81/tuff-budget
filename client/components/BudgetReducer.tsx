@@ -1,5 +1,3 @@
-import { LineItemType } from '../../types'
-
 export const budgetReducerActionTypes = {
   reloadBudgets: 'RELOAD_BUDGETS',
   deleteBudget: 'DELETE_BUDGET',
@@ -9,6 +7,7 @@ export const budgetReducerActionTypes = {
   patchLineItem: 'PATCH_LINEITEM',
   deleteLineItem: 'DELETE_LINEITEM'
 }
+
 
 export function budgetReducer (state: any, action: any) {
   // create a copy of the state and pull the budgetArray off of it to be manipulated throughout the reducer.
@@ -23,10 +22,6 @@ export function budgetReducer (state: any, action: any) {
       const { bIndex } = action.payload;
       delete budgetArray[bIndex]
       budgetArray = budgetArray.flat();
-      for (let i = bIndex; i < budgetArray.length; i++){
-        budgetArray[i].bIndex = i - 1;
-      }
-      console.log('new budget array', budgetArray);
       return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.createBudget : {
@@ -34,22 +29,29 @@ export function budgetReducer (state: any, action: any) {
       return {...state, budgetArray };
     }
     case budgetReducerActionTypes.patchBudget : {
-      const { fields, budgetID, bIndex } = action.payload;
-      return 'do not patch please'
+      const { editedObject, budgetID, bIndex } = action.payload;
+      const editingBudget = budgetArray[bIndex];
+      console.log(editedObject);
+      Object.assign(editingBudget, editedObject);
+      return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.deleteLineItem : {
-      const { budgetID, lineItemID, bIndex, liIndex } = action.payload;
-      const { lineItemArray } = budgetArray[bIndex]
-      budgetArray[bIndex].lineItemArray = lineItemArray.filter((lineItem: LineItemType, i: number) => i !== liIndex)
+      const { budgetID, lineItemID, bIndex, lIndex } = action.payload;
+      let { lineItems } = budgetArray[bIndex];
+      delete lineItems[lIndex];
+      lineItems = lineItems.flat();
       return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.createLineItem : {
-      const { budgetID, lineItem, bIndex } = action.payload;
-      budgetArray[bIndex].lineItemArray.push(lineItem);
+      const { budgetID, newLineItem, bIndex } = action.payload;
+      budgetArray[bIndex].lineItems.push(newLineItem);
       return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.patchLineItem : {
-      return 'do not patch yet please';
+      const { lIndex, bIndex, editedObject } = action.payload;
+      const editingLineItem = budgetArray[bIndex].lineItems[lIndex];
+      Object.assign(editingLineItem, editedObject);
+      return { ...state, budgetArray }
     }
     default : {
       console.log('uh oh')

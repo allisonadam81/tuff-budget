@@ -2,36 +2,26 @@ import React, { useContext, useState } from 'react';
 import { LineItemType, LineItemArray } from '../../types';
 import LineItem from './LineItem'
 
-type LineItemProps = {
+type LineItemsProps = {
   lineItems: LineItemArray,
   budgetID: number
   bIndex: number
 }
 
-const LineItems: React.FC<LineItemProps> = ({ lineItems, budgetID, bIndex }) => {
-// on click of text, we want to be able to switch the render to a form with an input instead of divs. Then on submit, leave the form as grey until the database updates.
-// on click set editing to true. Turn render into forms. On submit, send the entire form to the crud call, change editing to false to render divs with theme grey. Once the crud call goes through, change to green and update accordingly.
-  const lineItemsArray = new Array(lineItems.length);
+const LineItems: React.FC<LineItemsProps> = ({ lineItems, budgetID, bIndex }) => {
 
-  lineItems.forEach((item: LineItemType, i: Number) => {
-    if (item.lIndex === null){
-      lineItemsArray[lineItems.length] = <LineItem
-      key={item.lineItemID}
-      lineItem={item}
-      bIndex={bIndex}
-      budgetID={budgetID}
-      />
-    } else {
-    lineItemsArray[item.lIndex] = <LineItem
-    key={item.lineItemID}
-    lineItem={item}
-    bIndex={bIndex}
-    budgetID={budgetID}
-    />
-  }})
+
   return (
     <>
-    {lineItemsArray}
+    {lineItems.map((item, i) => {
+      return <LineItem
+        key={`lineitem${item.lineItemID}${budgetID}`}
+        lineItem={item}
+        bIndex={bIndex}
+        budgetID={budgetID}
+        lIndex={i}
+        />
+    })}
     </>
   )
 }

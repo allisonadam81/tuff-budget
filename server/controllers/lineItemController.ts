@@ -1,5 +1,3 @@
-export {};
-
 import { NextFunction } from '../../types';
 import { Request, Response } from 'express';
 const db = require('../models/dbModels');
@@ -36,15 +34,15 @@ const lineItemController = {
   // middleware to enter a new line item into a database
   createLineItem: (req: Request, res: Response, next: NextFunction) => {
     //FIXME: REFACTOR ME probably a better way to do this
+    const { budgetID, lineItemID } = req.params
+    console.log(req.body)
     const {
-      budgetID,
       description,
       category,
       expAmount,
       actAmount,
       isFixed,
-      isRecurring,
-      lIndex
+      isRecurring,    
     } = req.body;
 
     const params = [
@@ -52,21 +50,22 @@ const lineItemController = {
       description,
       category,
       expAmount,
-      actAmount || -1,
+      actAmount,
       isFixed,
       isRecurring,
-      lIndex
     ];
+    console.log(params)
 
     const sqlQuery = `
-    INSERT INTO lineitems (budgetID, description, category, expAmount, actAmount, isFixed, isRecurring, isActive, lIndex)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8)
+    INSERT INTO lineitems (budgetID, description, category, expAmount, actAmount, isFixed, isRecurring, isActive)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, true)
     RETURNING ID;
     `;
 
     // query the database to create a new li and return the new line item ID
     db.query(sqlQuery, params)
       .then((queryResults: any) => {
+        console.log(queryResults.rows);
         res.locals.lineItemID = queryResults.rows[0].id;
         return next();
       })
@@ -80,6 +79,33 @@ const lineItemController = {
         });
       });
   },
+
+  patchLineItem: (req: Request, res: Response, next: NextFunction) => {
+    const { lineItemID, budgetID } = req.params;
+    let columns = [];
+    let params = [];
+    let i = 1;
+    for (let key in req.body){
+      columns.push(`${key}=$${i++}, `);
+      params.push(req.body[key])
+    }
+    columns[i-2] = columns[i-2].replace(',', '').trim();
+    params.push(lineItemID);
+    const sqlQuery = `
+    UPDATE lineitems
+    SET ${columns.join('')}
+    WHERE id=$${i}
+    RETURNING *
+    `;
+    db.query(sqlQuery, params)
+    .then((data: any) => {
+      const lineItem = data.rows[0];
+      delete lineItem.isactive;
+      res.locals.lineItem = lineItem;
+      return next();
+    })
+    .catch((err: any) => console.log(err));
+  }
 };
 
 module.exports = lineItemController;

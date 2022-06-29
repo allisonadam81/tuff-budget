@@ -1,13 +1,14 @@
 import React, { useContext, useState, useReducer } from 'react'
 import { CrudContext } from './CrudContext'
 import { LineItemActions } from './Actions';
-import { Methods } from './Actions'
+import { budgetReducerActionTypes as types } from './BudgetReducer';
+import axios from 'axios';
 
 type LineItemEditingProps = {
   description: string,
   category: string,
-  expAmount: number | string,
-  actAmount: number | string,
+  expAmount: number,
+  actAmount: number,
   isFixed: boolean,
   isRecurring: boolean,
   budgetID: number,
@@ -18,54 +19,62 @@ type LineItemEditingProps = {
   setEditing: any
 }
 
-const LineItemEditing = (props: LineItemEditingProps) => {
-  const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID, lIndex, bIndex, setEditing } = props;
-  const { myCrudCall } = useContext(CrudContext);
 
-  const [ editedObject, setEditedObject ]: any = useState({ bIndex, lIndex })
+const LineItemEditing = (props: LineItemEditingProps) => {
+  
+  const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID, lIndex, bIndex, setEditing } = props;
+  const { dispatch } = useContext(CrudContext);
+
+  let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`
+
+  const [ editedObject, setEditedObject ]: any = useState({})
 
   const handleChange = (e: any, type: string) => {
-    const { value, checked } = e.target;
+    let { value, checked } = e.target;
 
       if (type === LineItemActions.description || type === LineItemActions.category){
         return setEditedObject({ ...editedObject, [type]: value })
       }
       if (type === LineItemActions.expAmount || type === LineItemActions.actAmount){
-        return setEditedObject({ ...editedObject, [type]: Number(value) })
+        return setEditedObject({ ...editedObject, [type]: Number(value.replace(/\D/g, '')) })
       }
       if (type === LineItemActions.isFixed || type === LineItemActions.isRecurring){
-        console.log('here')
         return setEditedObject({ ...editedObject, [type]: checked })
       }
     }
   
-
-  return (
-    <form className='line-item' onSubmit={(e:any) => {
+    const handleSubmit = (e: any) => {
       e.preventDefault();
-      myCrudCall(e, editedObject, Methods.patch, budgetID, lineItemID);
-      setEditedObject({ bIndex, lIndex })
+      dispatch({ type: types.patchLineItem, payload: { bIndex, lIndex, editedObject }})
+      axios.patch(url, editedObject)
+      .then(data => {
+        const { lineItem } = data.data;
+        dispatch({ type: types.patchLineItem, payload: { bIndex, lIndex, editedObject: lineItem }})
+      })
+      .catch(err => console.log(err));
+      setEditedObject({})
       setEditing(false);
       return;
     }
-    }>
+
+    
+  return (
+    <form className='line-item' onSubmit={(e:any) => handleSubmit(e)}>
       <input value={(editedObject.description !== undefined)
         ? editedObject.description
         : description}
         onChange={(e: any) => handleChange(e, LineItemActions.description)}></input>
       <input value={(editedObject.category !== undefined)
         ? editedObject.category
-        : category}
+        : category.toLocaleString()}
         onChange={(e: any) => handleChange(e, LineItemActions.category)}></input>
-      <input type='number'
-      value={(editedObject.expAmount !== undefined)
+      <input value={(editedObject.expAmount !== undefined)
         ? editedObject.expAmount
-        : Number(expAmount)}
+        : expAmount.toLocaleString()}
         onChange={(e: any) => handleChange(e, LineItemActions.expAmount)}></input>
-      <input type='number'
-      value={(editedObject.actAmount !== undefined)
+      <input value={(editedObject.actAmount !== undefined)
       ? editedObject.actAmount
-      : Number(actAmount)} onChange={(e: any) => handleChange(e, LineItemActions.actAmount)}></input>
+      : actAmount} onChange={(e: any) => handleChange(e, LineItemActions.actAmount)}></input>
       <input type='checkbox'
       checked={(editedObject.isFixed !== undefined)
       ? editedObject.isFixed
@@ -76,7 +85,7 @@ const LineItemEditing = (props: LineItemEditingProps) => {
       ? editedObject.isRecurring
       : isRecurring}
       onChange={(e: any) => handleChange(e, LineItemActions.isRecurring)}></input>
-      <button type='submit' >Submit</button>
+      <button type='submit'>Submit</button>
     </form>
   )
 }

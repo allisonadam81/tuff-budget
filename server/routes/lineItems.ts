@@ -9,7 +9,7 @@ const lineItemController = require('../controllers/lineItemController');
 
 // REQUEST HANDLERS
 router.post('/:budgetID/:lineItemID', lineItemController.createLineItem, (req: Request, res: Response) => {
-  res.status(200).json(res.locals.lineItemID);
+  res.status(200).json(res.locals);
 });
 
 router.delete('/:budgetID/:lineItemID', lineItemController.deleteLineItem, (req: Request, res: Response) => {
@@ -17,9 +17,9 @@ router.delete('/:budgetID/:lineItemID', lineItemController.deleteLineItem, (req:
 });
   
 
-// router.patch('/:budgetID/:lineItemID', lineItemController.patchLineItem, (req: Request, res: Response) => {
-//   res.status(200).json(res.locals.lineItem)
-// })
+router.patch('/:budgetID/:lineItemID', lineItemController.patchLineItem, (req: Request, res: Response) => {
+  res.status(200).json(res.locals)
+})
 
 
 // EXPORT ROUTER
