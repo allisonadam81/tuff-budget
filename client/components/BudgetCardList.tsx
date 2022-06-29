@@ -1,32 +1,24 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import BudgetCard from './BudgetCard'
-import { BudgetArray, HandleFunctions } from '../../types';
+import { BudgetArray, HandleFunctions, Budget } from '../../types';
+
 
 interface BudgetCardListProps {
-  handleDeleteBudget: (id: number) => void,
-  createBudget: (e: React.FormEvent<HTMLFormElement>) => void,
-  handleDeleteLineItem: (id: number, budgetID: number) => void,
-  createLineItem: (e: React.FormEvent<HTMLFormElement>, budgetID: number) => void,
   budgetArray: BudgetArray,
-  userID: number,
 }
 
-const BudgetCardList: React.FC<BudgetCardListProps> = props => {
-  const { budgetArray, userID, handleDeleteBudget, createBudget, handleDeleteLineItem, createLineItem } = props;
-
+const BudgetCardList: React.FC<BudgetCardListProps> = ({ budgetArray }) => {
+  // iterate through the budget array, and each object goes in an array matching the bIndex
   return (
-    <div className='budget-list-container'>
-      {budgetArray.map((budget, i) => <BudgetCard
-         key={budget.budgetID} 
-         createBudget={createBudget} 
-         handleDeleteBudget={handleDeleteBudget}
-         createLineItem={createLineItem}
-         handleDeleteLineItem= {handleDeleteLineItem}
-         userID={userID} 
-         budgetObject={budget}/>
-      )}
-    </div>
-
+    <>
+    {budgetArray.map((budgetObject, i) => {
+      return <BudgetCard
+      key={`budget${budgetObject.budgetID}`}
+      budgetObject={budgetObject}
+      bIndex={i}
+      />
+    })}
+    </>
   )
 }
 

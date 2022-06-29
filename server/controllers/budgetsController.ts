@@ -1,6 +1,4 @@
-export {};
-
-import { LineItem, NextFunction } from '../../types';
+import { LineItemType, NextFunction } from '../../types';
 import { Request, Response } from 'express';
 const db = require('../models/dbModels');
 
@@ -8,15 +6,15 @@ interface UserBudgetType {
   title: string;
   budget: number;
   budgetID: number;
-  lineItems: LineItem[];
+  lineItems: LineItemType[];
 }
 
-interface BudgetQueryType {
+type BudgetQueryType = {
   id: number;
-  userid: number;
+  userid?: number;
   title: string;
   budget: number;
-  isactive: boolean;
+  isactive?: boolean;
 }
 
 const budgetsController = {
@@ -29,7 +27,8 @@ const budgetsController = {
     const sqlQuery = `
     SELECT * 
     FROM budgets
-    WHERE userID = $1 AND isActive = true;
+    WHERE userID = $1 AND isActive = true
+    ORDER BY id;
     `;
 
     // query the database and pass the results to the next middleware
@@ -66,7 +65,8 @@ const budgetsController = {
       const sqlQuery = `
       SELECT * 
       FROM lineitems
-      WHERE budgetID = $1 AND isActive = true;
+      WHERE budgetID = $1 AND isActive = true
+      ORDER BY id;
       `;
 
       const params = [budget.budgetID];
@@ -75,7 +75,7 @@ const budgetsController = {
       try {
         const queryResults = await db.query(sqlQuery, params);
         queryResults.rows.forEach((lineItem:any) => {
-          const formattedLI:LineItem = {
+          const formattedLI:LineItemType = {
             lineItemID: lineItem.id,
             description: lineItem.description,
             category: lineItem.category,
@@ -102,7 +102,8 @@ const budgetsController = {
 
   // middleware to create a new budget in the database
   createBudget: (req: Request, res: Response, next: NextFunction) => {
-    const { userID, title, budget } = req.body;
+    const { userID } = req.params
+    const { title, budget, lineItems } = req.body;
     const params = [userID, title, budget];
     // define query to create new budget
     const sqlQuery = `
@@ -117,14 +118,14 @@ const budgetsController = {
         // create and attach return object to locals so that frontend can display budget
         res.locals.createdBudget = {
           budgetID: queryResults.rows[0].id,
-          userID: queryResults.rows[0].userid,
           title: queryResults.rows[0].title,
           budget: queryResults.rows[0].budget,
+          lineItems
         };
-
         return next();
       })
       .catch((err: any) => {
+        console.log(err)
         return next({
           log: 'Express error in createBudget middleware',
           status: 400,
@@ -137,7 +138,7 @@ const budgetsController = {
 
   // middleware to deactivate a budget from the database
   deleteBudget: (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+    const { budgetID, userID } = req.params;
 
     // define query to delete specified budget
     const sqlQuery = `
@@ -147,7 +148,7 @@ const budgetsController = {
     `;
 
     // query the database and insert new budget
-    db.query(sqlQuery, [id])
+    db.query(sqlQuery, [budgetID])
       .then((queryResults: any) => {
         return next();
       })
@@ -161,6 +162,34 @@ const budgetsController = {
         });
       });
   },
+
+  patchBudget: (req: Request, res: Response, next: NextFunction) => {
+    const { userID, budgetID } = req.params;
+    let columns = [];
+    let params = [];
+    let i = 1;
+    for (let key in req.body){
+      columns.push(`${key}=$${i++}, `);
+      params.push(req.body[key])
+    }
+    columns[i-2] = columns[i-2].replace(',', '').trim();
+    params.push(budgetID);
+    const sqlQuery = `
+    UPDATE budgets
+    SET ${columns.join('')}
+    WHERE id=$${i}
+    RETURNING *
+    `;
+    db.query(sqlQuery, params)
+    .then((data: any) => {
+      const budget: BudgetQueryType = data.rows[0]
+      delete budget.userid;
+      delete budget.isactive;
+      res.locals.budget = budget;
+      return next();
+    })
+    .catch((err: any) => console.log(err));
+  }
 };
 
 module.exports = budgetsController;

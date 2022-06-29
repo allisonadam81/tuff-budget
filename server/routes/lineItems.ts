@@ -8,13 +8,18 @@ const lineItemController = require('../controllers/lineItemController');
 
 
 // REQUEST HANDLERS
-router.delete('/:id', lineItemController.deleteLineItem, function (req: Request, res: Response) {
+router.post('/:budgetID/:lineItemID', lineItemController.createLineItem, (req: Request, res: Response) => {
+  res.status(200).json(res.locals);
+});
+
+router.delete('/:budgetID/:lineItemID', lineItemController.deleteLineItem, (req: Request, res: Response) => {
   res.status(200).send('Successfully deleted line item');
 });
   
-router.post('/', lineItemController.createLineItem, function (req: Request, res: any) {
-  res.status(200).json(res.locals.lineItemID);
-});
+
+router.patch('/:budgetID/:lineItemID', lineItemController.patchLineItem, (req: Request, res: Response) => {
+  res.status(200).json(res.locals)
+})
 
 
 // EXPORT ROUTER

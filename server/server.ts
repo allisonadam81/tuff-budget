@@ -1,15 +1,13 @@
-export {};
-
 // SET UP APP
-import {Express} from 'express'
+import { Express } from 'express'
 const cors = require('cors');
 const express = require('express');
-const app:Express = express();
+const app: Express = express();
 const port = 3000;
 
-app.use(cors({origin: 'http://localhost:8080',credentials: true}));
+app.use(cors({origin: 'http://localhost:8080', credentials: true}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 
 // REQUIRE ROUTERS
 const lineItemRouter = require('./routes/lineItems');
@@ -17,6 +15,7 @@ const budgetsRouter = require('./routes/budgets');
 // const usersRouter = require('./routes/users');
 
 // CREATE ROUTES
+// app.use('/login', we will need to verify, then set a cookie and a session.
 app.use('/lineItems', lineItemRouter);
 app.use('/budgets', budgetsRouter);
 // app.use('/users', usersRouter);
