@@ -61,7 +61,7 @@ const budgetsController = {
   },
 
   getLineItems: async (req: Request, res: Response, next: NextFunction) => {
-    for (let budget of res.locals.userBudgets){
+    for (let budget of res.locals.userBudgets) {
       const sqlQuery = `
       SELECT * 
       FROM lineitems
@@ -70,12 +70,12 @@ const budgetsController = {
       `;
 
       const params = [budget.budgetID];
-      
+
       // query database for all line items pertaining to specified budget
       try {
         const queryResults = await db.query(sqlQuery, params);
-        queryResults.rows.forEach((lineItem:any) => {
-          const formattedLI:LineItemType = {
+        queryResults.rows.forEach((lineItem: any) => {
+          const formattedLI: LineItemType = {
             lineItemID: lineItem.id,
             description: lineItem.description,
             category: lineItem.category,
@@ -139,17 +139,22 @@ const budgetsController = {
   // middleware to deactivate a budget from the database
   deleteBudget: (req: Request, res: Response, next: NextFunction) => {
     const { budgetID, userID } = req.params;
-
+    const params: Number[] = [Number(budgetID)]
     // define query to delete specified budget
     const sqlQuery = `
     UPDATE budgets
     SET isActive = false
     WHERE ID = $1;
     `;
-
+    // const sqlQuery = `
+    // DELETE FROM budgets
+    // WHERE ID = $1
+    // RETURNING *;
+    // `
     // query the database and insert new budget
-    db.query(sqlQuery, [budgetID])
+    db.query(sqlQuery, params)
       .then((queryResults: any) => {
+        res.locals.budget = queryResults.rows[0];
         return next();
       })
       .catch((err: any) => {
@@ -168,11 +173,11 @@ const budgetsController = {
     let columns = [];
     let params = [];
     let i = 1;
-    for (let key in req.body){
+    for (let key in req.body) {
       columns.push(`${key}=$${i++}, `);
       params.push(req.body[key])
     }
-    columns[i-2] = columns[i-2].replace(',', '').trim();
+    columns[i - 2] = columns[i - 2].replace(',', '').trim();
     params.push(budgetID);
     const sqlQuery = `
     UPDATE budgets
@@ -181,14 +186,14 @@ const budgetsController = {
     RETURNING *
     `;
     db.query(sqlQuery, params)
-    .then((data: any) => {
-      const budget: BudgetQueryType = data.rows[0]
-      delete budget.userid;
-      delete budget.isactive;
-      res.locals.budget = budget;
-      return next();
-    })
-    .catch((err: any) => console.log(err));
+      .then((data: any) => {
+        const budget: BudgetQueryType = data.rows[0]
+        delete budget.userid;
+        delete budget.isactive;
+        res.locals.budget = budget;
+        return next();
+      })
+      .catch((err: any) => console.log(err));
   }
 };
 

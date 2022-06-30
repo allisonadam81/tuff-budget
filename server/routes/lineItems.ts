@@ -13,7 +13,7 @@ router.post('/:budgetID/:lineItemID', lineItemController.createLineItem, (req: R
 });
 
 router.delete('/:budgetID/:lineItemID', lineItemController.deleteLineItem, (req: Request, res: Response) => {
-  res.status(200).send('Successfully deleted line item');
+  res.status(200).send(res.locals);
 });
   
 

@@ -20,8 +20,7 @@ export function budgetReducer (state: any, action: any) {
     }
     case budgetReducerActionTypes.deleteBudget : {
       const { bIndex } = action.payload;
-      delete budgetArray[bIndex]
-      budgetArray = budgetArray.flat();
+      budgetArray.splice(bIndex, 1);
       return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.createBudget : {
@@ -31,15 +30,12 @@ export function budgetReducer (state: any, action: any) {
     case budgetReducerActionTypes.patchBudget : {
       const { editedObject, budgetID, bIndex } = action.payload;
       const editingBudget = budgetArray[bIndex];
-      console.log(editedObject);
       Object.assign(editingBudget, editedObject);
       return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.deleteLineItem : {
       const { budgetID, lineItemID, bIndex, lIndex } = action.payload;
-      let { lineItems } = budgetArray[bIndex];
-      delete lineItems[lIndex];
-      lineItems = lineItems.flat();
+      budgetArray[bIndex].lineItems.splice(lIndex, 1);
       return { ...state, budgetArray }
     }
     case budgetReducerActionTypes.createLineItem : {

@@ -7,8 +7,8 @@ const budgetsController = require('../controllers/budgetsController');
 
 // REQUEST HANDLERS
 router.get('/:userID/:budgetID', budgetsController.getBudgets, budgetsController.getLineItems, function (req: Request, res: Response) {
-    res.status(200).json(res.locals.userBudgets);
-  }
+  res.status(200).json(res.locals.userBudgets);
+}
 );
 
 router.post(
@@ -23,7 +23,7 @@ router.delete(
   '/:userID/:budgetID',
   budgetsController.deleteBudget,
   function (req: Request, res: Response) {
-    res.status(200).send('Successfully deleted budget');
+    res.status(200).json(res.locals);
   }
 );
 

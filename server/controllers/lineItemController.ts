@@ -8,16 +8,23 @@ const lineItemController = {
     const { lineItemID, budgetID } = req.params;
     const params: Number[] = [Number(lineItemID)]
     // define query to delete specified budget
+    // const sqlQuery = `
+    // UPDATE lineitems
+    // SET isActive = false
+    // WHERE ID = $1
+    // RETURNING *;
+    // `;
     const sqlQuery = `
-    UPDATE lineitems
-    SET isActive = false
-    WHERE ID = $1;
-    `;
+    DELETE FROM lineitems
+    WHERE ID = $1
+    RETURNING *;
+    `
 
     // query the database and insert new budget
     db.query(sqlQuery, params)
       .then((queryResults: any) => {
-        res.locals.queryResults = queryResults;
+        console.log(queryResults.rows);
+        res.locals.lineItem = queryResults.rows[0];
         return next();
       })
       .catch((err: any) => {
@@ -35,7 +42,6 @@ const lineItemController = {
   createLineItem: (req: Request, res: Response, next: NextFunction) => {
     //FIXME: REFACTOR ME probably a better way to do this
     const { budgetID, lineItemID } = req.params
-    console.log(req.body)
     const {
       description,
       category,
@@ -54,7 +60,6 @@ const lineItemController = {
       isFixed,
       isRecurring,
     ];
-    console.log(params)
 
     const sqlQuery = `
     INSERT INTO lineitems (budgetID, description, category, expAmount, actAmount, isFixed, isRecurring, isActive)
