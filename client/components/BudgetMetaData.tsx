@@ -23,7 +23,6 @@ const BudgetMetaData = ({ bIndex, budgetID, title, budget }: BudgetMetaDataProps
   const deleteBudget = (e: any) => {
     axios.delete(url)
       .then((response: any) => {
-        console.log(response);
         dispatch({ type: types.deleteBudget, payload: { bIndex } })
         return;
       })

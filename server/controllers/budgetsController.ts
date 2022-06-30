@@ -105,7 +105,6 @@ const budgetsController = {
     const { userID } = req.params
     const { title, budget, lineItems } = req.body;
     const params = [userID, title, budget];
-    // define query to create new budget
     const sqlQuery = `
     INSERT INTO budgets (userID, title, budget)
     VALUES ($1, $2, $3)

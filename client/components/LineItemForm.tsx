@@ -32,7 +32,6 @@ const LineItemForm = ({ bIndex, budgetID, lineItems }: LineItemFormProps) => {
       axios.post(url, newLineItem)
       .then((res: any) => {
         newLineItem.lineItemID = res.data.lineItemID;
-        console.log('in line item form after add line item called ', newLineItem);
         dispatch({type: types.createLineItem, payload: { newLineItem, budgetID, bIndex }})
         return;
       })

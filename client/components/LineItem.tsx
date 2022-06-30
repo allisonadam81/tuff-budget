@@ -32,10 +32,9 @@ const LineItem = ({ lineItem, budgetID, bIndex, lIndex }: LineItemProps) => {
 
   const deleteLineItem = (e: any) => {
     e.preventDefault();
-    dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, lIndex }})
     axios.delete(url)
     .then((response: any) => {
-      console.log(response);
+      dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, lIndex }})
       return;
       })
     .catch((err: Error) => console.log(err));
