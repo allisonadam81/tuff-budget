@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react'
 import { CrudContext } from './CrudContext';
 import axios from 'axios';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
+import { FormEvent, InputEvent } from '../../types';
 
 type BudgetMetaDataEditingProps = {
   bIndex: number,
@@ -17,7 +18,7 @@ const budgetActions = {
   budget: 'budget'
 }
 
-const BudgetMetaDataEditing = ({ bIndex, budget, title, budgetID, editing, setEditing }: BudgetMetaDataEditingProps) => {
+const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ bIndex, budget, title, budgetID, editing, setEditing }) => {
   const { dispatch, userID } = useContext(CrudContext);
 
   let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
@@ -35,8 +36,11 @@ const BudgetMetaDataEditing = ({ bIndex, budget, title, budgetID, editing, setEd
     }
   }
 
-const handleSubmit = (e: any) => {
+const handleSubmit = (e: FormEvent) => {
   e.preventDefault();
+  if (!Object.keys(editedObject).length){
+    return setEditing(false);
+  }
   dispatch({ type: types.patchBudget, payload: { bIndex, editedObject }})
   axios.patch(url, editedObject)
   .then(data => {
@@ -51,16 +55,16 @@ const handleSubmit = (e: any) => {
   
   return (
     <div className='budget-meta-data'>
-      <form onSubmit={(e: any) => handleSubmit(e)}>
+      <form onSubmit={(e: FormEvent) => handleSubmit(e)}>
         <input value={(editedObject.title !== undefined)
           ? editedObject.title
           : title}
-          onChange={(e: any) => handleChange(e, budgetActions.title)}>
+          onChange={(e: InputEvent) => handleChange(e, budgetActions.title)}>
         </input>
         <input value={(editedObject.budget !== undefined)
           ? editedObject.budget
           : budget.toLocaleString()}
-          onChange={(e: any) => handleChange(e, budgetActions.budget)}>
+          onChange={(e: InputEvent) => handleChange(e, budgetActions.budget)}>
         </input>
         <button type='submit' >Submit</button>
       </form>

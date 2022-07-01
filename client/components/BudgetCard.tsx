@@ -9,7 +9,7 @@ import LineItemHeader from './LineItemHeader';
 import ExpectedSpentData from './ExpectedSpentData';
 import BudgetMetaData from './BudgetMetaData';
 
-interface BudgetCardProps {
+type BudgetCardProps = {
   budgetObject: Budget
   bIndex: number
 }

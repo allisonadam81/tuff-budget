@@ -8,7 +8,7 @@ import BudgetMetaDataEditing from './BudgetMetaDataEditing';
 type BudgetMetaDataProps = {
   bIndex: number,
   budgetID: number,
-  title: string
+  title: string,
   budget: number
 }
 
@@ -20,16 +20,14 @@ const BudgetMetaData = ({ bIndex, budgetID, title, budget }: BudgetMetaDataProps
 
   let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
 
-  const deleteBudget = (e: any) => {
+  const deleteBudget = (e: React.FormEvent) => {
+    e.preventDefault();
     axios.delete(url)
       .then((response: any) => {
         dispatch({ type: types.deleteBudget, payload: { bIndex } })
         return;
       })
-      .catch((err: any) => {
-        console.log(err);
-        return;
-      })
+      .catch((err: any) => console.log(err));
   }
 
 

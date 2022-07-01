@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { LineItemType } from '../../types';
+import { LineItemType, ButtonEvent, InputEvent, OnClickEvent } from '../../types';
 import { CrudContext } from './CrudContext';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
 import LineItemEditing from './LineItemEditing';
@@ -12,7 +12,7 @@ type LineItemProps = {
   lIndex: number,
 }
 
-const LineItem = ({ lineItem, budgetID, bIndex, lIndex }: LineItemProps) => {
+const LineItem: React.FC<LineItemProps> = ({ lineItem, budgetID, bIndex, lIndex }) => {
 
   const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID } = lineItem;
 
@@ -30,7 +30,7 @@ const LineItem = ({ lineItem, budgetID, bIndex, lIndex }: LineItemProps) => {
   const [ editing, setEditing ] = useState(false);
   const [ theme, setTheme ] = useState(colorTheme.default);
 
-  const deleteLineItem = (e: any) => {
+  const deleteLineItem = (e: ButtonEvent) => {
     e.preventDefault();
     axios.delete(url)
     .then((response: any) => {
@@ -42,16 +42,16 @@ const LineItem = ({ lineItem, budgetID, bIndex, lIndex }: LineItemProps) => {
 
   if (!editing) {
     return (
-  <div className='line-item' onClick={(e: any) => setEditing(true)}>
+  <div className='line-item' onClick={(e: OnClickEvent) => setEditing(true)}>
     <div>{description}</div>
     <div>{category}</div>
     <div>{'$'.concat(expAmount.toLocaleString())}</div>
     <div>{'$'.concat(actAmount.toLocaleString())}</div>
     <div>{isFixed ? '✔️' : '✖️' }</div>
     <div>{isRecurring ? '✔️' : '✖️' }</div>
-    <div className='delete-button'><button onClick={(e: any) => {
-      deleteLineItem(e);
-    }}>X</button></div>
+    <div className='delete-button'>
+      <button onClick={(e: ButtonEvent) => deleteLineItem(e)}>X</button>
+    </div>
   </div>
 
   )} else {

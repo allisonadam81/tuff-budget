@@ -1,3 +1,7 @@
+import { BudgetArray } from '../../types';
+
+
+
 export const budgetReducerActionTypes = {
   reloadBudgets: 'RELOAD_BUDGETS',
   deleteBudget: 'DELETE_BUDGET',
@@ -8,8 +12,26 @@ export const budgetReducerActionTypes = {
   deleteLineItem: 'DELETE_LINEITEM'
 }
 
+type State = {
+  userID: Number,
+  budgetArray: BudgetArray
+}
 
-export function budgetReducer (state: any, action: any) {
+type Action = any;
+
+// {
+//   type: String,
+//   payload: {
+//     budgetID?: Number,
+//     lineItemID?: Number,
+//     lIndex?: Number,
+//     bIndex?: Number,
+//     editedObject?: any,
+//     newLineItem?: any
+//   }
+// }
+
+export function budgetReducer (state: State, action: Action) {
   // create a copy of the state and pull the budgetArray off of it to be manipulated throughout the reducer.
   const copyState = JSON.parse(JSON.stringify(state));
   let { budgetArray } = copyState;

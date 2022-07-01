@@ -1,3 +1,5 @@
+import React from "react";
+
 export type BudgetArray = Budget[] | []
 
 export type LineItemArray = LineItemType[] | []
@@ -67,3 +69,9 @@ export interface RequestHandler {
 export interface MiddlewareFunction {
   (req: Request, res: Response, next: NextFunction): void;
 }
+
+
+export type InputEvent = React.ChangeEvent<HTMLInputElement>;
+export type ButtonEvent = React.MouseEvent<HTMLButtonElement, MouseEvent>
+export type OnClickEvent = React.MouseEvent<HTMLDivElement, MouseEvent>
+export type FormEvent = React.FormEvent<HTMLFormElement>

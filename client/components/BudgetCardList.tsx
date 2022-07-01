@@ -11,7 +11,7 @@ const BudgetCardList: React.FC<BudgetCardListProps> = ({ budgetArray }) => {
 
   return (
     <>
-    {budgetArray.map((budgetObject, i) => {
+    {budgetArray.map((budgetObject: Budget, i: number) => {
       return <BudgetCard
       key={`budget${budgetObject.budgetID}`}
       budgetObject={budgetObject}

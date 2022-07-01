@@ -2,7 +2,7 @@ import React, { Suspense, createContext, useState, useLayoutEffect, useReducer }
 // const BudgetCardList = React.lazy (() => import ('./BudgetCardList'));
 import BudgetCardList from './BudgetCardList';
 import axios from 'axios';
-import { BudgetArray, LineItemType, LineItemArray, Budget } from '../../types';
+import { BudgetArray, LineItemType, LineItemArray, Budget, InputEvent, FormEvent } from '../../types';
 import { CrudContext } from './CrudContext';
 import BudgetCard from './BudgetCard';
 import { budgetReducer, budgetReducerActionTypes as types } from './BudgetReducer';
@@ -28,7 +28,7 @@ const MainContainer: React.FC = () => {
   }, [])
 
 
-  const addBudget = (e: any, budget: Budget) => {
+  const addBudget = (e: FormEvent, budget: Budget) => {
     e.preventDefault();
     axios.post(url, budget)
       .then((res: any) => {
@@ -47,7 +47,7 @@ const MainContainer: React.FC = () => {
   const [title, setTitle] = useState('');
   const [budget, setBudget] = useState('');
 
-  function newBudgetHandleChange (e: any, action: string) {
+  function newBudgetHandleChange (e: InputEvent, action: string) {
     switch (action) {
       case newBudgetActions.title : {
         return setTitle(e.target.value)
@@ -69,7 +69,7 @@ const MainContainer: React.FC = () => {
       budgetArray={budgetArray}
       />
       <div className='create-budget-form'>
-        <form onSubmit = {(e: any) => {
+        <form onSubmit = {(e: FormEvent) => {
           const newBudget: Budget = {
             title, budget: Number(budget), budgetID, lineItems: []
           }
@@ -78,9 +78,9 @@ const MainContainer: React.FC = () => {
             setBudget('');
             return;
           }}>
-          <input className='name-of-project' value={title} placeholder='name of project' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.title)}>
+          <input className='name-of-project' value={title} placeholder='name of project' onChange={(e: InputEvent) => newBudgetHandleChange(e, newBudgetActions.title)}>
           </input>
-          <input className='budget-amount' value={budget} placeholder='budget' onChange={(e: any) => newBudgetHandleChange(e, newBudgetActions.budget)}></input>
+          <input className='budget-amount' value={budget} placeholder='budget' onChange={(e: InputEvent) => newBudgetHandleChange(e, newBudgetActions.budget)}></input>
           <button>Add Budget</button>
         </form>
       </div>

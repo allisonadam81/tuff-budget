@@ -39,10 +39,11 @@ $third-color: rgb(23, 110, 79);
   justify-content: center;
 }
 
-.budget-list-container {
-  @include flexVertContainers;
+// .budget-list-container {
+//   border: 25px solid black;
+//   @include flexVertContainers;
   
-}
+// }
 
 .budget-title-button {
   display: flex;
@@ -67,6 +68,26 @@ $third-color: rgb(23, 110, 79);
   gap: 20px;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 
+  form {
+    //border: solid 2px black;
+    @include flexHorizContainers;
+    @include border-radius(5px);
+    justify-items: flex-end;
+    //align-items: center;
+    input {
+      @include border-radius(5px);
+      border: solid 1px $third-color;
+      margin-right: 10px;
+      padding: 5px;
+    }
+    button{
+      @include border-radius(5px);
+      background-color: lighten($primary-color, 18%);
+      padding: 2px 8px 2px 8px;
+      border: solid 1px
+    }
+  }
+
   .delete-button {
     @include flexHorizContainers;
     justify-content: flex-end;
@@ -75,6 +96,7 @@ $third-color: rgb(23, 110, 79);
       @include border-radius(5px);
       background-color: lighten($primary-color, 18%);
       padding: 2px 8px 2px 8px;
+      border: solid 1px
     }
   }
 }
@@ -111,7 +133,7 @@ $third-color: rgb(23, 110, 79);
 .line-item-container{
   @include flexVertContainers;
   @include border-radius(5px);
-  // background-color: red;
+  //background-color: red;
   .line-item-header {
     position: relative;
     top: 0;
@@ -123,9 +145,13 @@ $third-color: rgb(23, 110, 79);
 }
 
 .add-line-item-form{
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  align-items: end;
+  //border: solid 2px black;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  // display: grid;
+  // grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  // align-items: end;
   min-height: 60px;
     form {
       @include flexHorizContainers;
