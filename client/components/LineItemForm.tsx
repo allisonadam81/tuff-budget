@@ -22,13 +22,14 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
   
   const [ description, setDescription ] = useState('');
   const [ category, setCategory ] = useState('');
-  const [ expAmount, setExpAmount ] = useState('');
-  const [ actAmount, setActAmount ] = useState('');
+  const [ expAmount, setExpAmount ] = useState<number | string>('');
+  const [ actAmount, setActAmount ] = useState<number | string>('');
   const [ isFixed, setIsFixed ] = useState(false);
   const [ isRecurring, setIsRecurring ] = useState(false);
 
-  const addLineItem = (e: FormEvent, newLineItem: LineItemType) => {
+  const addLineItem = (e: FormEvent, newLineItem: any) => {
     e.preventDefault();
+    if (!description || !category) return console.log('passing blank state');
       axios.post(url, newLineItem)
       .then((res: any) => {
         newLineItem.lineItemID = res.data.lineItemID;
@@ -38,7 +39,7 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
       .catch(err => console.log(err));
     }
 
-  const resetState = () => {
+  function resetState () {
     setDescription('');
     setCategory('');
     setExpAmount('');
@@ -46,6 +47,19 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
     setIsFixed(false);
     setIsRecurring(false);
   }
+
+  // const handleChange = (e: InputEvent, type: string) => {
+  //   let { value, checked } = e.target;
+  //     if (type === LineItemActions.description || type === LineItemActions.category){
+  //       return setEditedObject({ ...editedObject, [type]: value })
+  //     }
+  //     if (type === LineItemActions.expAmount || type === LineItemActions.actAmount){
+  //       return setEditedObject({ ...editedObject, [type]: Number(value.replace(/\D/g, '')) })
+  //     }
+  //     if (type === LineItemActions.isFixed || type === LineItemActions.isRecurring){
+  //       return setEditedObject({ ...editedObject, [type]: checked })
+  //     }
+  //   }
 
   return (
     <div className='add-line-item-form'>
@@ -58,8 +72,8 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
       }>
         <input placeholder='description' value={description} onChange={(e: InputEvent) => setDescription(e.target.value)}></input>
         <input placeholder='category' value={category} onChange={(e: InputEvent) => setCategory(e.target.value)}></input>
-        <input placeholder='expected amount' value={expAmount} onChange={(e: InputEvent) => setExpAmount(e.target.value.replace(/\D/g, ''))}></input>
-        <input placeholder='actual amount' value={actAmount} onChange={(e: InputEvent) => setActAmount(e.target.value.replace(/\D/g, ''))}></input>
+        <input placeholder='expected amount' value={expAmount.toString()} onChange={(e: InputEvent) => setExpAmount(Number(e.target.value.replace(/\D/g, '')))}></input>
+        <input placeholder='actual amount' value={actAmount.toString()} onChange={(e: InputEvent) => setActAmount(Number(e.target.value.replace(/\D/g, '')))}></input>
         {/* add check boxes for recocurring and fixed */}
         Fixed?: <input type='checkbox' name='Fixed' checked={isFixed} onChange={(e: InputEvent) => setIsFixed(e.target.checked)}></input>
         Recurring?: <input type='checkbox' name='Recurring' checked={isRecurring}onChange={(e: InputEvent) => setIsRecurring(e.target.checked)}></input>
