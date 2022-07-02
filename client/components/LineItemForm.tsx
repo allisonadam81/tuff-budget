@@ -29,7 +29,10 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
 
   const addLineItem = (e: FormEvent, newLineItem: any) => {
     e.preventDefault();
-    if (!description || !category) return console.log('passing blank state');
+    if (!description || !category){
+      console.log('passing blank state');
+      return;
+    }
       axios.post(url, newLineItem)
       .then((res: any) => {
         newLineItem.lineItemID = res.data.lineItemID;
