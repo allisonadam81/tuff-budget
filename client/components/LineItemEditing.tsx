@@ -1,30 +1,23 @@
 import React, { useContext, useState, useReducer } from 'react'
-import { CrudContext } from './CrudContext'
-import { LineItemActions } from './Actions';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
+import { LineItemActions } from './Actions';
 import axios from 'axios';
 import { InputEvent, FormEvent } from '../../types';
+import { useRecoilValue } from 'recoil';
+import { lineItemAtoms } from './Store';
 
 type LineItemEditingProps = {
-  description: string,
-  category: string,
-  expAmount: number,
-  actAmount: number,
-  isFixed: boolean,
-  isRecurring: boolean,
-  budgetID: number,
-  lineItemID: number
-  lIndex: number,
-  bIndex: number,
+  indexInfo: { bIndex: number, lIndex: number }
   editing: boolean,
   setEditing: any
 }
 
 
-const LineItemEditing: React.FC<LineItemEditingProps> = (props) => {
-  
-  const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID, lIndex, bIndex, setEditing } = props;
-  const { dispatch } = useContext(CrudContext);
+const LineItemEditing: React.FC<LineItemEditingProps> = ({ setEditing, indexInfo }) => {
+
+  const lineItem = useRecoilValue(lineItemAtoms(indexInfo));
+
+  const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID } = lineItem;
 
   let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`
 
@@ -48,13 +41,11 @@ const LineItemEditing: React.FC<LineItemEditingProps> = (props) => {
       if (!Object.keys(editedObject).length){
         return setEditing(false);
       }
-      dispatch({ type: types.patchLineItem, payload: { bIndex, lIndex, editedObject }})
       axios.patch(url, editedObject)
-      .then(data => {
-        const { lineItem } = data.data;
-        dispatch({ type: types.patchLineItem, payload: { bIndex, lIndex, editedObject: lineItem }})
-      })
-      .catch(err => console.log(err));
+        .then(data => {
+          const { lineItem } = data.data;
+        })
+        .catch(err => console.log(err));
       setEditedObject({})
       setEditing(false);
       return;

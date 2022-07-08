@@ -12,6 +12,7 @@ export type Budget = {
 };
 
 export type LineItemType = {
+  budgetID: number,
   lineItemID: number,
   description: string,
   category: string,

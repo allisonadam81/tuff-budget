@@ -1,12 +1,16 @@
-import React from 'react'
+import React from 'react';
+import { useRecoilValue } from 'recoil';
+import { budgetProps } from './BudgetProps';
+import { expectedTotalSelectors, budgetPropertySelectors } from './Store';
 
 type ExpectedDataProps = {
-  expectedTotal: number,
-  budget: number
+  bIndex: number
 }
 
-const ExpectedData = ({ expectedTotal, budget }: ExpectedDataProps) => {
+const ExpectedData = ({ bIndex }: ExpectedDataProps) => {
   
+  const expectedTotal = useRecoilValue(expectedTotalSelectors(bIndex));
+  const budget = useRecoilValue(budgetPropertySelectors({ bIndex, property: budgetProps.budget }));
 
   return (
     <div className='total-row'>

@@ -1,24 +1,23 @@
 import React, { useContext, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { lineItemAtoms } from './Store';
 import { LineItemType, ButtonEvent, InputEvent, OnClickEvent } from '../../types';
-import { CrudContext } from './CrudContext';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
 import LineItemEditing from './LineItemEditing';
 import axios from 'axios';
 
 type LineItemProps = {
-  lineItem: LineItemType,
-  budgetID: number,
   bIndex: number,
   lIndex: number,
 }
 
-const LineItem: React.FC<LineItemProps> = ({ lineItem, budgetID, bIndex, lIndex }) => {
-
-  const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID } = lineItem;
+const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
+  const indexInfo = { bIndex, lIndex };
+  
+  const lineItem = useRecoilValue(lineItemAtoms(indexInfo))
+  const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID, budgetID } = lineItem;
 
   let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`
-
-  const { dispatch } = useContext(CrudContext);
 
   const colorTheme = {
     default: 'green',
@@ -34,7 +33,6 @@ const LineItem: React.FC<LineItemProps> = ({ lineItem, budgetID, bIndex, lIndex 
     e.preventDefault();
     axios.delete(url)
     .then((response: any) => {
-      dispatch({ type: types.deleteLineItem, payload: { lineItemID, bIndex, lIndex }})
       return;
       })
     .catch((err: Error) => console.log(err));
@@ -57,16 +55,7 @@ const LineItem: React.FC<LineItemProps> = ({ lineItem, budgetID, bIndex, lIndex 
   )} else {
     return (
     <LineItemEditing
-      budgetID={budgetID}
-      lineItemID={lineItemID}
-      description={description}
-      category={category}
-      expAmount={expAmount}
-      actAmount={actAmount}
-      isFixed={isFixed}
-      isRecurring={isRecurring}
-      lIndex={lIndex}
-      bIndex={bIndex}
+      indexInfo={indexInfo}
       setEditing={setEditing}
       editing={editing}
     />

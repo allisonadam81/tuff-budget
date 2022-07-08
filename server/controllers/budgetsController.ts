@@ -1,5 +1,6 @@
 import { LineItemType, NextFunction } from '../../types';
 import { Request, Response } from 'express';
+import BudgetMetaDataEditing from '../../client/components/BudgetMetaDataEditing';
 const db = require('../models/dbModels');
 
 interface UserBudgetType {
@@ -76,6 +77,7 @@ const budgetsController = {
         const queryResults = await db.query(sqlQuery, params);
         queryResults.rows.forEach((lineItem: any) => {
           const formattedLI: LineItemType = {
+            budgetID: lineItem.budgetid,
             lineItemID: lineItem.id,
             description: lineItem.description,
             category: lineItem.category,

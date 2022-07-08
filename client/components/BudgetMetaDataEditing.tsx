@@ -1,15 +1,11 @@
-import React, { useState, useContext } from 'react'
-import { CrudContext } from './CrudContext';
+import React, { useState, useContext } from 'react';
+import { useRecoilValue } from 'recoil';
 import axios from 'axios';
-import { budgetReducerActionTypes as types } from './BudgetReducer';
-import { FormEvent, InputEvent } from '../../types';
+import { userAtom, budgetAtoms } from './Store';
+import { FormEvent, InputEvent, Budget } from '../../types';
 
 type BudgetMetaDataEditingProps = {
   bIndex: number,
-  budget: number,
-  title: string,
-  budgetID: number,
-  editing: boolean,
   setEditing: any
 }
 
@@ -18,8 +14,10 @@ const budgetActions = {
   budget: 'budget'
 }
 
-const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ bIndex, budget, title, budgetID, editing, setEditing }) => {
-  const { dispatch, userID } = useContext(CrudContext);
+const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ bIndex, setEditing }) => {
+  const userID = useRecoilValue(userAtom);
+  const budgetObject: Budget = useRecoilValue(budgetAtoms(bIndex));
+  const { title, budget, budgetID } = budgetObject; // do not need line items right now.
 
   let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
 
@@ -41,11 +39,10 @@ const handleSubmit = (e: FormEvent) => {
   if (!Object.keys(editedObject).length){
     return setEditing(false);
   }
-  dispatch({ type: types.patchBudget, payload: { bIndex, editedObject }})
+
   axios.patch(url, editedObject)
   .then(data => {
     const { budget } = data.data;
-    dispatch({ type: types.patchBudget, payload: { bIndex, editedObject: budget }})
   })
   .catch(err => console.log(err));
   setEditedObject({})

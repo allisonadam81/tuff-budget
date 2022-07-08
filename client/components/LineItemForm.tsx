@@ -1,23 +1,23 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { CrudContext } from './CrudContext';
+import { changeHandler, numHandler, checkHandler } from './curryFuncs';
 import { LineItemArray, LineItemType, InputEvent, FormEvent } from '../../types';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
 import LineItems from './LineItems';
 import axios from 'axios';
+import { budgetProps } from './BudgetProps';
+import { useRecoilValue } from 'recoil';
+import { budgetPropertySelectors } from './Store';
 
 type LineItemFormProps = {
-  budgetID: number,
   bIndex: number,
-  lineItems: LineItemArray
 }
 
-const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems }) => {
+const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
   const lineItemID = 0;
+  
+  const budgetID = useRecoilValue(budgetPropertySelectors({ bIndex, property: budgetProps.budgetID }))
 
   let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`;
-
-  
-  const { dispatch } =  useContext(CrudContext);
 
   
   const [ description, setDescription ] = useState('');
@@ -29,14 +29,13 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
 
   const addLineItem = (e: FormEvent, newLineItem: any) => {
     e.preventDefault();
-    if (!description || !category){
+    if (!description || !category || !expAmount){
       console.log('passing blank state');
       return;
     }
       axios.post(url, newLineItem)
       .then((res: any) => {
         newLineItem.lineItemID = res.data.lineItemID;
-        dispatch({type: types.createLineItem, payload: { newLineItem, budgetID, bIndex }})
         return;
       })
       .catch(err => console.log(err));
@@ -51,19 +50,6 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
     setIsRecurring(false);
   }
 
-  // const handleChange = (e: InputEvent, type: string) => {
-  //   let { value, checked } = e.target;
-  //     if (type === LineItemActions.description || type === LineItemActions.category){
-  //       return setEditedObject({ ...editedObject, [type]: value })
-  //     }
-  //     if (type === LineItemActions.expAmount || type === LineItemActions.actAmount){
-  //       return setEditedObject({ ...editedObject, [type]: Number(value.replace(/\D/g, '')) })
-  //     }
-  //     if (type === LineItemActions.isFixed || type === LineItemActions.isRecurring){
-  //       return setEditedObject({ ...editedObject, [type]: checked })
-  //     }
-  //   }
-
   return (
     <div className='add-line-item-form'>
       <form onSubmit = {(e: FormEvent) => {
@@ -73,13 +59,13 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex, budgetID, lineItems
         return;
       }
       }>
-        <input placeholder='description' value={description} onChange={(e: InputEvent) => setDescription(e.target.value)}></input>
-        <input placeholder='category' value={category} onChange={(e: InputEvent) => setCategory(e.target.value)}></input>
-        <input placeholder='expected amount' value={expAmount.toString()} onChange={(e: InputEvent) => setExpAmount(Number(e.target.value.replace(/\D/g, '')))}></input>
-        <input placeholder='actual amount' value={actAmount.toString()} onChange={(e: InputEvent) => setActAmount(Number(e.target.value.replace(/\D/g, '')))}></input>
+        <input placeholder='description' value={description} onChange={changeHandler(setDescription)}></input>
+        <input placeholder='category' value={category} onChange={changeHandler(setCategory)}></input>
+        <input placeholder='expected amount' value={expAmount.toString()} onChange={numHandler(setExpAmount)}></input>
+        <input placeholder='actual amount' value={actAmount.toString()} onChange={numHandler(setActAmount)}></input>
         {/* add check boxes for recocurring and fixed */}
-        Fixed?: <input type='checkbox' name='Fixed' checked={isFixed} onChange={(e: InputEvent) => setIsFixed(e.target.checked)}></input>
-        Recurring?: <input type='checkbox' name='Recurring' checked={isRecurring}onChange={(e: InputEvent) => setIsRecurring(e.target.checked)}></input>
+        Fixed?: <input type='checkbox' name='Fixed' checked={isFixed} onChange={checkHandler(setIsFixed)}></input>
+        Recurring?: <input type='checkbox' name='Recurring' checked={isRecurring} onChange={checkHandler(setIsRecurring)}></input>
         <button>Submit</button>
       </form>
   </div>

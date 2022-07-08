@@ -1,22 +1,24 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { CrudContext } from './CrudContext'
 import axios from 'axios';
-import { budgetReducerActionTypes as types } from './BudgetReducer';
+import { budgetProps } from './BudgetProps';
+import { useRecoilValue } from 'recoil';
+import { budgetAtoms, budgetPropertySelectors, userAtom } from './Store';
+import { Budget } from '../../types';
 
 import BudgetMetaDataEditing from './BudgetMetaDataEditing';
 
 type BudgetMetaDataProps = {
   bIndex: number,
-  budgetID: number,
-  title: string,
-  budget: number
 }
 
-const BudgetMetaData = ({ bIndex, budgetID, title, budget }: BudgetMetaDataProps) => {
+const BudgetMetaData = ({ bIndex }: BudgetMetaDataProps) => {
+  const userID = useRecoilValue(userAtom);
+  
+  const budgetObject: Budget = useRecoilValue(budgetAtoms(bIndex));
+  const { title, budget, budgetID } = budgetObject; // do not need line items right now.
+
 
   const [editing, setEditing] = useState(false);
-
-  const { dispatch, userID } = useContext(CrudContext);
 
   let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
 
@@ -24,12 +26,10 @@ const BudgetMetaData = ({ bIndex, budgetID, title, budget }: BudgetMetaDataProps
     e.preventDefault();
     axios.delete(url)
       .then((response: any) => {
-        dispatch({ type: types.deleteBudget, payload: { bIndex } })
         return;
       })
       .catch((err: any) => console.log(err));
   }
-
 
   if (!editing) {
     return (
@@ -50,10 +50,6 @@ const BudgetMetaData = ({ bIndex, budgetID, title, budget }: BudgetMetaDataProps
     return (
       <BudgetMetaDataEditing
         bIndex={bIndex}
-        budgetID={budgetID}
-        title={title}
-        budget={budget}
-        editing={editing}
         setEditing={setEditing}
       />
     )
