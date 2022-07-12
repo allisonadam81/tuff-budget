@@ -38,7 +38,7 @@ const MainContainer: React.FC = () => {
       .catch((err: any) => console.log(err));
       return;
   }
-
+  
   const [title, setTitle] = useState('');
   const [budget, setBudget] = useState<number|string>('');
   
