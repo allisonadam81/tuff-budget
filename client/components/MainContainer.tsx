@@ -17,8 +17,8 @@ const MainContainer: React.FC = () => {
   let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
 
   const budgetFetch = async () => {
-    const result: BudgetArray = await axios.get(url)
-    setBudgetArray(result)
+    const result: any = await axios.get(url)
+    setBudgetArray(result.data)
     return;
   }
 
@@ -47,7 +47,7 @@ const MainContainer: React.FC = () => {
       {/* <Suspense fallback={<div>Loading...</div>}> */}
       {/* <BudgetCardList/> */}
       <>
-        {budgetArray.map((el: Budget, i: number) => <BudgetCard bIndex={i}/>)}
+        {budgetArray.map((el: Budget, i: number) => <BudgetCard key={`budget${el.budgetID}`} bIndex={i}/>)}
       </>
       <div className='create-budget-form'>
         <form onSubmit = {(e: FormEvent) => {

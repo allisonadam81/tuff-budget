@@ -28,6 +28,7 @@ return (
         <LineItemHeader/>
       </>
         {lineItems.map((el: LineItemType, i: number) => <LineItem
+          key={`lineItem${el.lineItemID}`}
           lIndex={i}
           bIndex={bIndex}
           />

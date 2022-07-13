@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { changeHandler, numHandler, checkHandler } from './curryFuncs';
 import { LineItemArray, LineItemType, InputEvent, FormEvent } from '../../types';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
-import LineItems from './LineItems';
+// import LineItems from './LineItems';
 import axios from 'axios';
 import { budgetProps } from './BudgetProps';
 import { useRecoilValue } from 'recoil';
@@ -19,7 +19,6 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
 
   let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`;
 
-  
   const [ description, setDescription ] = useState('');
   const [ category, setCategory ] = useState('');
   const [ expAmount, setExpAmount ] = useState<number | string>('');
