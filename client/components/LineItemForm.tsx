@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { changeHandler, numHandler, checkHandler } from './curryFuncs';
+import { changeHandler, numHandler, checkHandler, urlFunc } from './curryFuncs';
 import { LineItemArray, LineItemType, InputEvent, FormEvent } from '../../types';
 import { budgetReducerActionTypes as types } from './BudgetReducer';
 // import LineItems from './LineItems';
@@ -14,10 +14,9 @@ type LineItemFormProps = {
 
 const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
   const lineItemID = 0;
-  
   const budgetID = useRecoilValue(budgetPropertySelectors({ bIndex, property: budgetProps.budgetID }))
 
-  let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`;
+  const url = urlFunc('lineItems', budgetID, lineItemID);
 
   const [ description, setDescription ] = useState('');
   const [ category, setCategory ] = useState('');

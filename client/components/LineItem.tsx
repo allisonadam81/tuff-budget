@@ -55,6 +55,7 @@ const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
   )} else {
     return (
     <LineItemEditing
+      url={url}
       indexInfo={indexInfo}
       setEditing={setEditing}
       editing={editing}

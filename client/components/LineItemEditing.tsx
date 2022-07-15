@@ -9,17 +9,16 @@ import { numFilter, curryChange } from './curryFuncs';
 type LineItemEditingProps = {
   indexInfo: { bIndex: number, lIndex: number }
   editing: boolean,
-  setEditing: any
+  setEditing: any,
+  url: string
 }
 
 
-const LineItemEditing: React.FC<LineItemEditingProps> = ({ setEditing, indexInfo }) => {
+const LineItemEditing: React.FC<LineItemEditingProps> = ({ url, setEditing, indexInfo }) => {
 
   const lineItem = useRecoilValue(lineItemAtoms(indexInfo));
 
   const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID } = lineItem;
-
-  let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`
 
   const [ editedObject, setEditedObject ]: any = useState({})
   

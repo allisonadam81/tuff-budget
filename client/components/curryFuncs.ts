@@ -90,15 +90,21 @@ export const curryChange = (editedObject: any, type: keyof typeof LineItemAction
 export const curryFetch = (addedObject: any) => {
   return (url: string) => {
     return (method: keyof typeof Methods) => {
-      return (e: InputEvent | FormEvent) => {
-        e.preventDefault();
-        axios[method](url, addedObject ? addedObject : null)
+      return(thenHandler: any, catchHandler: any) => {
+        return (e: InputEvent | FormEvent) => {
+          e.preventDefault();
+          axios[method](url, addedObject ? addedObject : null)
+            .then(thenHandler)
+            .catch(catchHandler)
+        }
       }
     }
   }
 }
 
 
-
+export const urlFunc = (item: 'budget'|'lineItems', firstID: number, secondID: number) => {
+  return `http://localhost:3000/${item}/${firstID}/${secondID}`
+}
 
 

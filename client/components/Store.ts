@@ -37,7 +37,10 @@ export const budgetArrayAtom = atom({
 // budget/lineItem Atoms here are currently selector families, but kept the names to prevent import problems.
 export const budgetAtoms = selectorFamily({
   key: 'budgetAtomFamilySelectorFamily',
-  get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex]
+  get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
+  set: (bIndex: number) => ({ get, set, reset }, action ) => {
+    const budget: any = get(budgetArrayAtom)[bIndex]
+  }
 })
 
 export const lineItemAtoms = selectorFamily({

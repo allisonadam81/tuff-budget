@@ -4,7 +4,7 @@ import { budgetProps } from './BudgetProps';
 import { useRecoilValue } from 'recoil';
 import { budgetAtoms, budgetPropertySelectors, userAtom } from './Store';
 import { Budget } from '../../types';
-
+import { urlFunc } from './curryFuncs';
 import BudgetMetaDataEditing from './BudgetMetaDataEditing';
 
 type BudgetMetaDataProps = {
@@ -20,7 +20,7 @@ const BudgetMetaData = ({ bIndex }: BudgetMetaDataProps) => {
 
   const [editing, setEditing] = useState(false);
 
-  let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
+  const url = urlFunc('budget', userID, budgetID)
 
   const deleteBudget = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +49,7 @@ const BudgetMetaData = ({ bIndex }: BudgetMetaDataProps) => {
   } else {
     return (
       <BudgetMetaDataEditing
+        url={url}
         bIndex={bIndex}
         setEditing={setEditing}
       />

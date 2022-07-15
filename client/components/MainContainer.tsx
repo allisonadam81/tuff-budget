@@ -1,6 +1,6 @@
 import React, { Suspense, createContext, useState, useLayoutEffect, useReducer } from 'react';
 // const BudgetCardList = React.lazy (() => import ('./BudgetCardList'));
-import { numHandler, changeHandler } from './curryFuncs';
+import { numHandler, changeHandler, urlFunc } from './curryFuncs';
 import axios from 'axios';
 import { BudgetArray, LineItemType, LineItemArray, Budget, InputEvent, FormEvent } from '../../types';
 import BudgetCard from './BudgetCard';
@@ -9,12 +9,12 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 
 const MainContainer: React.FC = () => {
   const budgetID = 0;
+  const userID = useRecoilValue(userAtom);
 
   const [ budgetArray, setBudgetArray ] = useRecoilState(budgetArrayAtom);
 
-  const userID = useRecoilValue(userAtom);
 
-  let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
+  const url = urlFunc('budget', userID, budgetID);
 
   const budgetFetch = async () => {
     const result: any = await axios.get(url)

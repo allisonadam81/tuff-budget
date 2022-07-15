@@ -1,10 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import axios from 'axios';
 import { userAtom, budgetAtoms } from './Store';
 import { FormEvent, InputEvent, Budget } from '../../types';
 
 type BudgetMetaDataEditingProps = {
+  url: string,
   bIndex: number,
   setEditing: any
 }
@@ -14,12 +15,10 @@ const budgetActions = {
   budget: 'budget'
 }
 
-const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ bIndex, setEditing }) => {
+const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ url, bIndex, setEditing }) => {
   const userID = useRecoilValue(userAtom);
-  const budgetObject: Budget = useRecoilValue(budgetAtoms(bIndex));
+  const [ budgetObject, setBudgetObject ] = useRecoilState(budgetAtoms(bIndex));
   const { title, budget, budgetID } = budgetObject; // do not need line items right now.
-
-  let url = `http://localhost:3000/budgets/${userID}/${budgetID}`
 
 
   const [ editedObject, setEditedObject ]: any = useState({});
@@ -49,6 +48,14 @@ const handleSubmit = (e: FormEvent) => {
   setEditing(false);
   return;
 }
+
+/*
+  const handleSubmit = curryFetch(editedobject)(url)(Methods.patch)(
+    (res: any) => {
+      
+    }
+  )
+*/
   
   return (
     <div className='budget-meta-data'>
