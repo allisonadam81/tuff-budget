@@ -32,15 +32,14 @@ const MainContainer: React.FC = () => {
     axios.post(url, budget)
       .then((res: any) => {
         budget = res.data;
-        
         return;
       })
       .catch((err: any) => console.log(err));
       return;
   }
   
-  const [title, setTitle] = useState('');
-  const [budget, setBudget] = useState<number|string>('');
+  const [ title, setTitle ] = useState('');
+  const [ budget, setBudget ] = useState<number|string>('');
   
   return (
     <div>
