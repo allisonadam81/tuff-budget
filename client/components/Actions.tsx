@@ -16,6 +16,13 @@
 //   isRecurring: 'isRecurring'
 // }
 
+export enum BudgetProps {
+  budgetID = 'budgetID',
+  title = 'title',
+  budget = 'budget',
+  lineItems = 'lineItems'
+}
+
 export enum Methods {
   get = 'get',
   post = 'post',

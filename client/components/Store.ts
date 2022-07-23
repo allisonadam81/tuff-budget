@@ -57,6 +57,10 @@ export const budgetPropertySelectors = selectorFamily({
   get: (properties: { bIndex: number, property: string }) => ({ get }) => {
     const { bIndex, property } = properties;
     return get(budgetAtoms(bIndex))[property];
+  },
+  set: (properties: { bIndex: number, property: string }) => ({ get, set, reset }, newProp: any) => {
+    const { bIndex, property } = properties;
+    const budgetProp = get(budgetAtoms(bIndex))[property]
   }
 })
 

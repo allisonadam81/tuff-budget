@@ -10,8 +10,6 @@ type ExpectedSpentDataProps = {
   bIndex: number
 }
 
-
-
 const ExpectedSpentData = ({ bIndex }: ExpectedSpentDataProps) => {
 
   return (

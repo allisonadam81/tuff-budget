@@ -1,4 +1,4 @@
-import { InputEvent, FormEvent } from '../../types';
+import { InputEvent, FormEvent, ButtonEvent } from '../../types';
 import { LineItemType, Budget } from '../../types';
 import { LineItemActions, Methods } from './Actions';
 import axios from 'axios';
@@ -21,12 +21,6 @@ export const checkHandler = function (setter: React.Dispatch<React.SetStateActio
 }
 
 type CombinedType = LineItemType & Budget;
-
- 
-// enum booleanSum {
-//   isFixed = 'true',
-//   isRecurring = 'true'
-// }
 
 
 //const sumType: LineItemType & Budget =
@@ -60,42 +54,65 @@ const typeObjectGenerator = (): SumType => {
   }
 }
 
-export const curryChange = (editedObject: any, type: keyof typeof LineItemActions ) => {
+export const curryChange = (editedObject: any) => {
+  const sumType = typeObjectGenerator();
   return (setter: React.Dispatch<React.SetStateAction<any>>) => {
-    const sumType = typeObjectGenerator();
-    return (e: InputEvent) => {
-      switch ( typeof sumType[type] ) {
-        case ('string') : {
-          setter({ ...editedObject, [type]: e.target.value })
-          return;
-          break;
-        }
-        case ('number') : {
-          setter({ ...editedObject, [type]: numFilter(e.target.value) })
-          return;
-          break;
-        }
-        case ('boolean') : {
-          setter({ ...editedObject, [type]: e.target.checked })
-          return;
-          break;
+    return (field: keyof typeof LineItemActions) => {
+      return (e: InputEvent) => {
+        switch ( typeof sumType[field] ) {
+          case ('string') : {
+            setter({ ...editedObject, [field]: e.target.value })
+            return;
+            break;
+          }
+          case ('number') : {
+            setter({ ...editedObject, [field]: numFilter(e.target.value) })
+            return;
+            break;
+          }
+          case ('boolean') : {
+            setter({ ...editedObject, [field]: e.target.checked })
+            return;
+            break;
+          }
         }
       }
     }
   }
 }
 
+/*
+const fetchHandler (url, method, dataObj, thenHandler, catchHandler) => {
+  return (e) => {
+    axios.....
+  }
+}
+const handleSubmit = fetchHandler(url, 'get', stateObjectData, thenFunc, catchFunc)
+
+onclick = handleSubmit
 
 
-export const curryFetch = (addedObject: any) => {
-  return (url: string) => {
-    return (method: keyof typeof Methods) => {
-      return(thenHandler: any, catchHandler: any) => {
-        return (e: InputEvent | FormEvent) => {
-          e.preventDefault();
-          axios[method](url, addedObject ? addedObject : null)
-            .then(thenHandler)
-            .catch(catchHandler)
+*/
+
+/*
+  const curriedFetch = curryFetch(url)('GET')(stateObjectData)()
+
+  const itemAURLFetch = curryFetch(url);
+
+  
+*/
+
+export const curryFetch = (url: string) => {
+  return (method: keyof typeof Methods) => {
+    return (dataObj: any) => {
+      return (thenHandler: any) => {
+        return (catchHandler: any) => {
+          return (e: InputEvent | FormEvent | ButtonEvent) => {
+            e.preventDefault();
+            axios[method](url, dataObj)
+              .then(thenHandler)
+              .catch(catchHandler)
+          }
         }
       }
     }

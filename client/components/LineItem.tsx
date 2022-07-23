@@ -2,9 +2,9 @@ import React, { useContext, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { lineItemAtoms } from './Store';
 import { LineItemType, ButtonEvent, InputEvent, OnClickEvent } from '../../types';
-import { budgetReducerActionTypes as types } from './BudgetReducer';
+import { urlFunc, curryFetch } from './curryFuncs';
 import LineItemEditing from './LineItemEditing';
-import axios from 'axios';
+import { Methods } from './Actions';
 
 type LineItemProps = {
   bIndex: number,
@@ -17,7 +17,7 @@ const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
   const lineItem = useRecoilValue(lineItemAtoms(indexInfo))
   const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID, budgetID } = lineItem;
 
-  let url = `http://localhost:3000/lineItems/${budgetID}/${lineItemID}`
+  const url = urlFunc('lineItems', budgetID, lineItemID);
 
   const colorTheme = {
     default: 'green',
@@ -29,14 +29,16 @@ const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
   const [ editing, setEditing ] = useState(false);
   const [ theme, setTheme ] = useState(colorTheme.default);
 
-  const deleteLineItem = (e: ButtonEvent) => {
-    e.preventDefault();
-    axios.delete(url)
-    .then((response: any) => {
-      return;
-      })
-    .catch((err: Error) => console.log(err));
-  }
+const thenHandler = (res: any) => {
+// set state
+}
+
+const catchHandler = (err: Error) => console.log(err);
+
+const urlConfig = curryFetch(url);
+
+const handleClick = urlConfig(Methods.delete)(null)(thenHandler)(catchHandler)
+
 
   if (!editing) {
     return (
@@ -48,14 +50,14 @@ const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
     <div>{isFixed ? '✔️' : '✖️' }</div>
     <div>{isRecurring ? '✔️' : '✖️' }</div>
     <div className='delete-button'>
-      <button onClick={(e: ButtonEvent) => deleteLineItem(e)}>X</button>
+      <button onClick={handleClick}>X</button>
     </div>
   </div>
 
   )} else {
     return (
     <LineItemEditing
-      url={url}
+      urlConfig={urlConfig}
       indexInfo={indexInfo}
       setEditing={setEditing}
       editing={editing}
