@@ -22,25 +22,11 @@ const LineItemEditing: React.FC<LineItemEditingProps> = ({ urlConfig, setEditing
 
   const [ editedObject, setEditedObject ]: any = useState({})
   
-    // const handleSubmit = (e: FormEvent) => {
-    //   e.preventDefault();
-    //   if (!Object.keys(editedObject).length){
-    //     return setEditing(false);
-    //   }
-    //   axios.patch(url, editedObject)
-    //     .then(data => {
-    //       const { lineItem } = data.data;
-    //     })
-    //     .catch(err => console.log(err));
-    //   setEditedObject({})
-    //   setEditing(false);
-    //   return;
-    // }
 
-    const thenHandler = (res: any) => {
-      setEditedObject({})
-      setEditing(false);
-      }
+  const thenHandler = (res: any) => {
+    setEditedObject({})
+    setEditing(false);
+  }
       
   const catchHandler = (err: Error) => console.log(err);
 

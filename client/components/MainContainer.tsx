@@ -28,20 +28,6 @@ const MainContainer: React.FC = () => {
     budgetFetch()
   }, [])
 
-
-  // const addBudget = (e: FormEvent, budget: Budget) => {
-  //   e.preventDefault();
-  //   axios.post(url, budget)
-  //     .then((res: any) => {
-  //       budget = res.data;
-  //       return;
-  //     })
-  //     .catch((err: any) => console.log(err));
-  //     return;
-  // }
-  // const [ title, setTitle ] = useState('');
-  // const [ budget, setBudget ] = useState<number|string>('');
-
     const thenHandler = (res: any) => {
       // set state
       }

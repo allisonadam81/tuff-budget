@@ -1,7 +1,14 @@
 import { atom, selector, selectorFamily, atomFamily } from 'recoil';
 import { BudgetArray, LineItemArray, LineItemType, Budget } from '../../types';
 import { GetRecoilValue, SetRecoilState } from 'recoil';
+import { cheapClone } from './curryFuncs';
+import { Methods } from './Actions';
+import LineItem from './LineItem';
 
+export type ActionObject = {
+  type: string,
+  payload: any
+}
 
 export const userAtom = atom({
   key: 'user',
@@ -13,44 +20,108 @@ export const budgetArrayAtom = atom({
   default: []
 });
 
-// export const budgetAtoms = atomFamily({
-//   key: 'budgetAtomFamily',
-//   default: selectorFamily({
-//     key: 'budgetAtomFamilySelectorFamily',
-//     get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex]
-//   })
-// })
+export const budgetAtoms = atomFamily({
+  key: 'budgetAtomFamily',
+  default: selectorFamily({
+    key: 'budgetAtomFamilySelectorFamily',
+    get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
+    set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
+      const budget: any = get(budgetAtoms(bIndex));
+      switch (action.type) {
+        case (Methods.patch) : { // this is editing budget values
+          set (budget, { ...budget, ...action.payload });
+          return;
+        };
+        case ('ADD LINE ITEM GOES HERE') : {
+          const { lineItems } = budget
 
-// export const lineItemAtoms = atomFamily({
-//   key: 'lineItemAtomFamily',
-//   default: selectorFamily({
-//     key: 'lineItemAtomFamilySelectorFamily',
-//     get: (indexInfo: { bIndex: number, lIndex: number }) => ({ get }) => {
-//       const { bIndex, lIndex } = indexInfo;
-//       const lineItems = get(budgetAtoms(bIndex)).lineItems;
-//       return lineItems[lIndex];
-//     }
-//   })
-// })
+          set(budget, { ...budget, lineItems: [ ...lineItems, action.payload]})
+        }
+      }
+    }
+  })
+});
+
+export const lineItemArrayAtoms = atomFamily({
+  key: 'lineItemArrayAtomFamily',
+  default: selectorFamily({
+    key: 'lineItemArraySelectorFamily',
+    get: (bIndex: number) => ({ get }) => get(budgetAtoms(bIndex)).lineItems,
+    set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
+      const lineItems = get(lineItemArrayAtoms(bIndex));
+      switch (action.type) {
+        case ('WHATEVER ADD LINE ITEM IS') : {
+          set(lineItems, [ ...lineItems, action.payload ])
+        }
+        case ('DELETE LINE ITEM') : {
+          const { lIndex } = action.payload;
+          set(lineItems, lineItems.filter((li: LineItemType, i: number) => i !== lIndex ? li : ))
+        }
+      }
+    }
+  })
+})
+
+
+export const lineItemAtoms = atomFamily({
+  key: 'lineItemAtomFamily',
+  default: selectorFamily({
+    key: 'lineItemAtomFamilySelectorFamily',
+    get: (indexInfo: { bIndex: number, lIndex: number }) => ({ get }) => {
+      const { bIndex, lIndex } = indexInfo;
+      const lineItems = get(lineItemArrayAtoms(bIndex));
+      return lineItems[lIndex];
+    },
+    set: (indexInfo: { bIndex: number, lIndex: number }) => ({ get, set }, action: ActionObject) => {
+      const { bIndex, lIndex } = indexInfo;
+      const lineItem = get(lineItemAtoms(indexInfo));
+      set(lineItem, { ...lineItem, ...action.payload });
+    }
+  })
+});
+
+
 
 
 // budget/lineItem Atoms here are currently selector families, but kept the names to prevent import problems.
-export const budgetAtoms = selectorFamily({
-  key: 'budgetAtomFamilySelectorFamily',
-  get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
-  set: (bIndex: number) => ({ get, set, reset }, action ) => {
-    const budget: any = get(budgetArrayAtom)[bIndex]
-  }
-})
+// export const budgetAtoms = selectorFamily({
+//   key: 'budgetAtomFamilySelectorFamily',
+//   get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
+//   set: (bIndex: number) => ({ get, set, reset }, action: ActionObject ) => {
+//     const budget = get(budgetArrayAtom)[bIndex];
+//     switch (action.type) {
+//       case (Methods.patch) : {
+//         set(budget, Object.assign(budget, action.payload))
+//       }
+//     }
+//   }
+// })
 
-export const lineItemAtoms = selectorFamily({
-  key: 'lineItemAtomFamilySelectorFamily',
-  get: (indexInfo: { bIndex: number, lIndex: number }) => ({ get }) => {
-    const { bIndex, lIndex } = indexInfo;
-    const lineItems = get(budgetAtoms(bIndex)).lineItems;
-    return lineItems[lIndex];
-  }
-})
+// export const lineItemAtoms = selectorFamily({
+//   key: 'lineItemAtomFamilySelectorFamily',
+//   get: (indexInfo: { bIndex: number, lIndex: number }) => ({ get }) => {
+//     const { bIndex, lIndex } = indexInfo;
+//     const lineItems = get(budgetAtoms(bIndex)).lineItems;
+//     return lineItems[lIndex];
+//   },
+//   set: (indexInfo: { bIndex: number, lIndex: number }) => ({ get, set }, action: ActionObject) => {
+//     const { bIndex, lIndex } = indexInfo;
+//     const budget = get(budgetAtoms(bIndex));
+//     const lineItemArray = budget.lineItems
+//     const lineItem = lineItemArray[lIndex];
+//     switch (action.type) {
+//       case (Methods.patch) : {
+//         set (lineItem, Object.assign(lineItem, action.payload))
+//       }
+//       case (Methods.post) : {
+//         set (lineItemArray, [ ...lineItemArray, action.payload ])
+//       }
+//       case (Methods.delete) : {
+//         set(lineItemArray, lineItemArray.filter((lineItem: LineItemType) => )
+//       }
+//     }
+//   }
+// })
 
 export const budgetPropertySelectors = selectorFamily({
   key: 'budgetPropertySelector',

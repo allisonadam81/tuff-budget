@@ -20,37 +20,12 @@ const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ urlConfig
 
 
   const [ editedObject, setEditedObject ]: any = useState({});
-
-  // const handleChange = (e: any, type: string) => {
-  //   let { value } = e.target;
-  //   if (type === budgetActions.title){
-  //     return setEditedObject({ ...editedObject, [type]: value })
-  //   }
-  //   if (type = budgetActions.budget){
-  //     return setEditedObject({ ...editedObject, [type]: Number(value.replace(/\D/g, '')) })
-  //   }
-  // }
-
-// const handleSubmit = (e: FormEvent) => {
-//   e.preventDefault();
-//   if (!Object.keys(editedObject).length){
-//     return setEditing(false);
-//   }
-
-//   axios.patch(url, editedObject)
-//   .then(data => {
-//     const { budget } = data.data;
-//   })
-//   .catch(err => console.log(err));
-//   setEditedObject({})
-//   setEditing(false);
-//   return;
-// }
   
   const thenHandler = (res: any) => {
     setEditedObject({})
     setEditing(false);
-    }
+  }
+
   const catchHandler = (err: Error) => {
     console.log(err);
   }

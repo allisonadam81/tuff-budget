@@ -3,6 +3,9 @@ import { LineItemType, Budget } from '../../types';
 import { LineItemActions, Methods } from './Actions';
 import axios from 'axios';
 
+export const cheapClone = (object: any) => {
+  return JSON.parse(JSON.stringify(object))
+}
 
 export const numFilter = (string: string): number => {
   return Number(string.replace(/\D/g, ''))
@@ -81,26 +84,16 @@ export const curryChange = (editedObject: any) => {
   }
 }
 
-/*
-const fetchHandler (url, method, dataObj, thenHandler, catchHandler) => {
-  return (e) => {
-    axios.....
-  }
-}
-const handleSubmit = fetchHandler(url, 'get', stateObjectData, thenFunc, catchFunc)
-
-onclick = handleSubmit
-
-
-*/
-
-/*
-  const curriedFetch = curryFetch(url)('GET')(stateObjectData)()
-
-  const itemAURLFetch = curryFetch(url);
-
-  
-*/
+// export const curryThen = (recoilSetter: any) => {
+//   return (...resetters: any) => {
+//     return (res: any) => {
+//       recoilSetter(res.data);
+//       if (resetters.length){
+//         resetters.forEach((resetter: any) => resetter())
+//       }
+//     }
+//   }  
+// }
 
 export const curryFetch = (url: string) => {
   return (method: keyof typeof Methods) => {

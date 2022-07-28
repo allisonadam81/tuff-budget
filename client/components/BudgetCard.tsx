@@ -8,7 +8,7 @@ import LineItemForm from './LineItemForm';
 import LineItemHeader from './LineItemHeader';
 import ExpectedSpentData from './ExpectedSpentData';
 import BudgetMetaData from './BudgetMetaData';
-import { budgetProps } from './BudgetProps';
+import { BudgetProps } from './Actions';
 
 type BudgetCardProps = {
   bIndex: number
@@ -16,7 +16,7 @@ type BudgetCardProps = {
 
 const BudgetCard: React.FC<BudgetCardProps> = ({ bIndex }) => {
 
-const lineItems = useRecoilValue(budgetPropertySelectors({ bIndex, property: budgetProps.lineItems }));
+const lineItems = useRecoilValue(budgetPropertySelectors({ bIndex, property: BudgetProps.lineItems }));
   
 return (
   <div className='budget-card'>
