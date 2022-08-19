@@ -3,7 +3,7 @@ import ExpectedData from './ExpectedData';
 import SpentData from './SpentData';
 import { useRecoilValue, selectorFamily } from 'recoil';
 import { budgetPropertySelectors, actualTotalSelectors, expectedTotalSelectors } from './Store';
-import { budgetProps } from './BudgetProps';
+import { BudgetProps } from './Actions';
 import { LineItemArray, LineItemType } from '../../types';
 
 type ExpectedSpentDataProps = {

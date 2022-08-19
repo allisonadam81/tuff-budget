@@ -34,10 +34,28 @@ export type BudgetCardPostRequest = {
   budget: number
 }
 
+export type ActionObject = {
+  type: string,
+  payload?: any
+}
+
 export type LineItemPatchRequest= {
   lineItemID: number,
   field: string,
   newValue: string | boolean | number
+}
+
+export type DataObjects = {
+  title?: string,
+  budget?: number,
+  budgetID?: number,
+  lineItems?: LineItemArray,
+  description?: string,
+  category?: string,
+  expAmount?: number,
+  actAmount?: number,
+  isFixed?: boolean,
+  isRecurring?: boolean
 }
 
 export type LineItemPostRequest = {

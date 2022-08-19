@@ -71,10 +71,10 @@ const budgetsController = {
       `;
 
       const params = [budget.budgetID];
-
       // query database for all line items pertaining to specified budget
       try {
         const queryResults = await db.query(sqlQuery, params);
+        console.log('query results ', queryResults.rows )
         queryResults.rows.forEach((lineItem: any) => {
           const formattedLI: LineItemType = {
             budgetID: lineItem.budgetid,
@@ -87,7 +87,9 @@ const budgetsController = {
             isRecurring: lineItem.isrecurring,
           }
           budget.lineItems.push(formattedLI);
+          //console.log('budget ', budget.lineItems)
         });
+        //return next();
       }
       catch (err) {
         return next({

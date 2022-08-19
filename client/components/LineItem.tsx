@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useRecoilValue, useRecoilState } from 'recoil';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
+import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
 import { lineItemAtoms, budgetAtoms } from './Store';
 import { LineItemType, ButtonEvent, InputEvent, OnClickEvent } from '../../types';
-import { urlFunc, curryFetch } from './curryFuncs';
+import { urlFunc, curryFetch } from './utils';
 import LineItemEditing from './LineItemEditing';
 import { Methods } from './Actions';
 
@@ -14,13 +14,12 @@ type LineItemProps = {
 const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
   const indexInfo = { bIndex, lIndex };
   
-  const [ lineItem, setLineItem ] = useRecoilValue(lineItemAtoms(indexInfo));
-
-  const [ budget, setBudget ] = useRecoilState(budgetAtoms(bIndex));
-
+  const [ lineItem, setLineItem ] = useRecoilState(lineItemAtoms(indexInfo));
+  
   const { description, category, expAmount, actAmount, isFixed, isRecurring, lineItemID, budgetID } = lineItem;
+  
+  const url = urlFunc('lineItems', budgetID, lineItemID)
 
-  const url = urlFunc('lineItems', budgetID, lineItemID);
 
   const colorTheme = {
     default: 'green',
@@ -34,7 +33,8 @@ const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
 
 // const thenHandler = curryThen(setLineItem)
 const thenHandler = (res: any) => {
-  return setBudget({ type: Methods.delete })
+  setLineItem({ type: Methods.delete })
+  return;
 }
   
 const catchHandler = (err: Error) => console.log(err);

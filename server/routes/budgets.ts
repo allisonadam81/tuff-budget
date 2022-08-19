@@ -10,6 +10,7 @@ router.get('/:userID/:budgetID',
   budgetsController.getBudgets,
   budgetsController.getLineItems,
   function (req: Request, res: Response) {
+    console.log('user budgets ', res.locals.userBudgets)
     res.status(200).json(res.locals.userBudgets);
   }
 );

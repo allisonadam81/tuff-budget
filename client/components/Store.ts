@@ -1,14 +1,9 @@
 import { atom, selector, selectorFamily, atomFamily } from 'recoil';
-import { BudgetArray, LineItemArray, LineItemType, Budget } from '../../types';
+import { BudgetArray, LineItemArray, LineItemType, Budget, ActionObject } from '../../types';
 import { GetRecoilValue, SetRecoilState } from 'recoil';
-import { cheapClone } from './curryFuncs';
+import { cheapClone } from './utils';
 import { Methods } from './Actions';
 import LineItem from './LineItem';
-
-export type ActionObject = {
-  type: string,
-  payload: any
-}
 
 export const userAtom = atom({
   key: 'user',
@@ -20,65 +15,120 @@ export const budgetArrayAtom = atom({
   default: []
 });
 
-export const budgetAtoms = atomFamily({
-  key: 'budgetAtomFamily',
-  default: selectorFamily({
-    key: 'budgetAtomFamilySelectorFamily',
-    get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
-    set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
-      const budget: any = get(budgetAtoms(bIndex));
-      switch (action.type) {
-        case (Methods.patch) : { // this is editing budget values
-          set (budget, { ...budget, ...action.payload });
-          return;
-        };
-        case ('ADD LINE ITEM GOES HERE') : {
-          const { lineItems } = budget
-
-          set(budget, { ...budget, lineItems: [ ...lineItems, action.payload]})
-        }
+export const budgetAtoms = selectorFamily({
+  key: 'budgetSelectorFamily',
+  get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
+  set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
+    // edit a budget. Delete a budget. add a budget.
+    const budgetArray = cheapClone(get(budgetArrayAtom));
+    switch (action.type) {
+      case (Methods.post) : {
+        budgetArray.push({ ...action.payload, lineItems: [] });
+        set(budgetArrayAtom, budgetArray);
+        return;
+      }
+      case (Methods.delete) : {
+        budgetArray.splice(bIndex, 1);
+        set(budgetArrayAtom, budgetArray);
+        return;
+      }
+      case (Methods.patch) : {
+        budgetArray[bIndex] = Object.assign(budgetArray[bIndex], action.payload);
+        set(budgetArrayAtom, budgetArray);
+        return;
       }
     }
-  })
+  }
 });
 
-export const lineItemArrayAtoms = atomFamily({
-  key: 'lineItemArrayAtomFamily',
-  default: selectorFamily({
-    key: 'lineItemArraySelectorFamily',
-    get: (bIndex: number) => ({ get }) => get(budgetAtoms(bIndex)).lineItems,
-    set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
-      const lineItems = get(lineItemArrayAtoms(bIndex));
-      switch (action.type) {
-        case ('WHATEVER ADD LINE ITEM IS') : {
-          set(lineItems, [ ...lineItems, action.payload ])
-        }
-        case ('DELETE LINE ITEM') : {
-          const { lIndex } = action.payload;
-          set(lineItems, lineItems.filter((li: LineItemType, i: number) => i !== lIndex ? li : ))
-        }
+type IndexInfo = {
+  bIndex: number,
+  lIndex?: number
+}
+
+export const lineItemAtoms = selectorFamily<LineItemType, IndexInfo>({
+  key: 'lineItemSelectorFamily',
+  get: (indexInfo) => ({ get }) => {
+    const { bIndex, lIndex } = indexInfo;
+    return get(budgetArrayAtom)[bIndex].lineItems[lIndex];
+  },
+  set: (indexInfo) => ({ get, set }, action) => {
+    // edit a budget. Delete a budget. add a budget.
+    const { bIndex, lIndex } = indexInfo;
+    const budgetArray = cheapClone(get(budgetArrayAtom));
+    const budget = budgetArray[bIndex];
+    switch (action.type) {
+      case (Methods.post) : {
+        //console.log(action.payload)
+        budget.lineItems.push(action.payload);
+        set(budgetArrayAtom, budgetArray);
+        return;
+      }
+      case (Methods.delete) : {
+        budget.lineItems.splice(lIndex, 1);
+        set(budgetArrayAtom, budgetArray);
+        return;
+      }
+      case (Methods.patch) : {
+        budget.lineItems[lIndex] = Object.assign(budget.lineItems[lIndex], action.payload)
+        set(budgetArrayAtom, budgetArray);
+        return;
       }
     }
-  })
+  }
 })
 
+// export const budgetAtoms = atomFamily({
+//   key: 'budgetAtomFamily',
+//   default: selectorFamily({
+//     key: 'budgetAtomFamilySelectorFamily',
+//     get: (bIndex: number) => ({ get }) => get(budgetArrayAtom)[bIndex],
+//     set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
+//       set(budgetArrayAtom, )
+//     }
+//   })
+// });
 
-export const lineItemAtoms = atomFamily({
-  key: 'lineItemAtomFamily',
-  default: selectorFamily({
-    key: 'lineItemAtomFamilySelectorFamily',
-    get: (indexInfo: { bIndex: number, lIndex: number }) => ({ get }) => {
-      const { bIndex, lIndex } = indexInfo;
-      const lineItems = get(lineItemArrayAtoms(bIndex));
-      return lineItems[lIndex];
-    },
-    set: (indexInfo: { bIndex: number, lIndex: number }) => ({ get, set }, action: ActionObject) => {
-      const { bIndex, lIndex } = indexInfo;
-      const lineItem = get(lineItemAtoms(indexInfo));
-      set(lineItem, { ...lineItem, ...action.payload });
-    }
-  })
-});
+// export const lineItemArrayAtoms = atomFamily({
+//   key: 'lineItemArrayAtomFamily',
+//   default: selectorFamily({
+//     key: 'lineItemArraySelectorFamily',
+//     get: (bIndex: number) => ({ get }) => get(budgetAtoms(bIndex)).lineItems,
+//     set: (bIndex: number) => ({ get, set }, action: ActionObject) => {
+//       console.log('triggered');
+//       switch (action.type) {
+//         case (Methods.post) : {
+//           set(lineItemArrayAtoms(bIndex), [ ...get(lineItemArrayAtoms(bIndex)), action.payload ])
+//         }
+//         case (Methods.delete) : {
+//           const { lIndex } = action.payload;
+//           set(lineItemArrayAtoms(bIndex), get(lineItemArrayAtoms(bIndex)).filter((li: LineItemType, i: number) => {
+//             if (i !== lIndex) return li;
+//           }))
+//         }
+//       }
+//     }
+//   })
+// })
+
+
+// export const lineItemAtoms = atomFamily({
+//   key: 'lineItemAtomFamily',
+//   default: selectorFamily({
+//     key: 'lineItemAtomFamilySelectorFamily',
+//     get: (indexInfo: { bIndex: number, lIndex: number }) => ({ get }) => {
+//       const { bIndex, lIndex } = indexInfo;
+//       const lineItems = get(lineItemArrayAtoms(bIndex));
+//       return lineItems[lIndex];
+//     },
+//     set: (indexInfo: { bIndex: number, lIndex: number }) => ({ get, set }, action: ActionObject) => {
+//       const { bIndex, lIndex } = indexInfo;
+//       const lineItem = get(lineItemAtoms(indexInfo));
+//       console.log('lineitem ', lineItem)
+//       set(lineItemAtoms(indexInfo), Object.assign(lineItem, action.payload));
+//     }
+//   })
+// });
 
 
 

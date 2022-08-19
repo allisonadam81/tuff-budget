@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { budgetAtoms, budgetPropertySelectors, userAtom } from './Store';
 import { Budget } from '../../types';
-import { curryFetch, urlFunc } from './curryFuncs';
+import { curryFetch, urlFunc } from './utils';
 import BudgetMetaDataEditing from './BudgetMetaDataEditing';
 import { Methods } from './Actions';
 
@@ -14,30 +14,24 @@ type BudgetMetaDataProps = {
 const BudgetMetaData = ({ bIndex }: BudgetMetaDataProps) => {
   const userID = useRecoilValue(userAtom);
   
-  const budgetObject: Budget = useRecoilValue(budgetAtoms(bIndex));
+  const [ budgetObject, setBudgetObject ] = useRecoilState(budgetAtoms(bIndex));
   const { title, budget, budgetID } = budgetObject; // do not need line items right now.
 
 
   const [editing, setEditing] = useState(false);
 
-  const url = urlFunc('budget', userID, budgetID)
+  const url = urlFunc('budgets', userID, budgetID)
 
   const urlConfig = curryFetch(url);
 
   const thenHandler = (res: any) => {
-    // set some state
-    }
+    
+    setBudgetObject({type: Methods.delete})
+  }
+
   const catchHandler = (err: Error) => console.log(err);
 
-  const handleClick = urlConfig(Methods.delete)(null)(thenHandler)(catchHandler)
-  // const deleteBudget = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   axios.delete(url)
-  //     .then((response: any) => {
-  //       return;
-  //     })
-  //     .catch((err: any) => console.log(err));
-  // }
+  const handleClick = urlConfig(Methods.delete)(null)(thenHandler)(catchHandler);
 
   if (!editing) {
     return (

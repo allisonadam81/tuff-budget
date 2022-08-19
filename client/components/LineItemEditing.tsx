@@ -2,9 +2,9 @@ import React, { useContext, useState, useReducer } from 'react'
 import { LineItemActions, Methods } from './Actions';
 import axios from 'axios';
 import { InputEvent, FormEvent } from '../../types';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { lineItemAtoms } from './Store';
-import { numFilter, curryChange, curryFetch } from './curryFuncs';
+import { numFilter, curryChange, curryFetch } from './utils';
 
 type LineItemEditingProps = {
   indexInfo: { bIndex: number, lIndex: number }
@@ -16,7 +16,7 @@ type LineItemEditingProps = {
 
 const LineItemEditing: React.FC<LineItemEditingProps> = ({ urlConfig, setEditing, indexInfo }) => {
 
-  const lineItem = useRecoilValue(lineItemAtoms(indexInfo));
+  const [ lineItem, setLineItem ] = useRecoilState(lineItemAtoms(indexInfo));
 
   const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID } = lineItem;
 
@@ -24,13 +24,14 @@ const LineItemEditing: React.FC<LineItemEditingProps> = ({ urlConfig, setEditing
   
 
   const thenHandler = (res: any) => {
+    setLineItem({type: Methods.patch, payload: editedObject})
     setEditedObject({})
-    setEditing(false);
+    setEditing((Prev: boolean): boolean => false)
   }
       
   const catchHandler = (err: Error) => console.log(err);
 
-  const handleSubmit = urlConfig(Methods.patch)(thenHandler)(catchHandler);
+  const handleSubmit = urlConfig(Methods.patch)(editedObject)(thenHandler)(catchHandler);
 
   const curryConfig = curryChange(editedObject)(setEditedObject);
     

@@ -1,6 +1,7 @@
-import { InputEvent, FormEvent, ButtonEvent } from '../../types';
-import { LineItemType, Budget } from '../../types';
+import { InputEvent, FormEvent, ButtonEvent, LineItemArray } from '../../types';
+import { LineItemType, Budget, DataObjects } from '../../types';
 import { LineItemActions, Methods } from './Actions';
+
 import axios from 'axios';
 
 export const cheapClone = (object: any) => {
@@ -97,11 +98,12 @@ export const curryChange = (editedObject: any) => {
 
 export const curryFetch = (url: string) => {
   return (method: keyof typeof Methods) => {
-    return (dataObj: any) => {
+    return (dataObj: DataObjects) => {
       return (thenHandler: any) => {
         return (catchHandler: any) => {
           return (e: InputEvent | FormEvent | ButtonEvent) => {
             e.preventDefault();
+            console.log(url)
             axios[method](url, dataObj)
               .then(thenHandler)
               .catch(catchHandler)
@@ -113,8 +115,51 @@ export const curryFetch = (url: string) => {
 }
 
 
-export const urlFunc = (item: 'budget'|'lineItems', firstID: number, secondID: number) => {
+export const urlFunc = (item: 'budgets'|'lineItems', firstID: number, secondID: number) => {
   return `http://localhost:3000/${item}/${firstID}/${secondID}`
 }
+
+
+
+
+
+/*
+// in selector family for line item, if the line item does not exist in BigLIAtom, then default is the default object.
+
+
+// what does the data look like?
+res.data.budgets = { 42 <-- bID: { title: '', budget: 0 } };
+res.data.lineItems = { 3 <-- lID: { desc: '', cat: '', etc.... }};
+set big lineItem Atom to res.data.lineItems
+set big budgets atom to res.data.budgets;
+set budgetID array to Object.keys(res.data.budgets);
+
+maincontainer iterates through BudgetIDArray and returns a Budget for each, drilling down the budgetID.
+The budget then imports the budgetimports the lineItemsAtom and sets the lineItemArray(bID) to be an array of lIDs that have a corresponding bID.
+
+the Budget imports the 
+
+create an atom that is a budgetID array.
+
+create an atom family that is a default value selector family that takes in the budget id. it returns the budget information for that budgetID. NO SETTER.
+create an atom family of lineItemIDArrays that is a default value of selector families that takes in the budget ID and returns the array of line item IDs for that budget NO SETTer.
+create an atom family of lineItems that is a default of selector family that gets the values from the lineitemID key from the big state NO SETTER.
+
+
+setBudgetIDArrayAtom(prev => [...Object.keys(res.data.budgets))];
+
+for (let id in budgets) {
+  [ lineItemIDArray, setLineItemIDArray ] = useRecoilState(lineItemIdArrayAtomFamily(id))
+  setLineItemIDArrayAtomFamily()
+}
+
+
+const lineItemIDArrayAtomFamily = atomFamily({
+  key: '',
+  default: (budgetID) => []
+})
+
+
+*/
 
 

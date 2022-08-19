@@ -1,38 +1,42 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { changeHandler, numHandler, checkHandler, urlFunc, curryFetch, curryChange } from './curryFuncs';
-import { LineItemArray, LineItemType, InputEvent, FormEvent } from '../../types';
+import React, { useContext, useState, useEffect, useLayoutEffect } from 'react';
+import { changeHandler, numHandler, checkHandler, urlFunc, curryFetch, curryChange } from './utils';
+import { LineItemArray, LineItemType, InputEvent, FormEvent, DataObjects } from '../../types';
 // import LineItems from './LineItems';
 import axios from 'axios';
-import { useRecoilState } from 'recoil';
-import { budgetPropertySelectors, budgetAtoms } from './Store';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { budgetPropertySelectors, budgetAtoms, lineItemAtoms } from './Store';
 import { Methods, LineItemActions, BudgetProps } from './Actions';
 
-const initialForm = {
-  description: '',
-  category: '',
-  expAmount: 0,
-  actAmount: 0,
-  isFixed: false,
-  isRecurring: false
-}
 
 type LineItemFormProps = {
   bIndex: number,
 }
 
 const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
+  const initialForm = {
+    description: '',
+    category: '',
+    budgetID: 0,
+    expAmount: 0,
+    actAmount: 0,
+    isFixed: false,
+    isRecurring: false,
+  }
   const lineItemID = 0;
-  const [ budget, setBudget ] = useRecoilState(budgetAtoms(bIndex));
-
-  const { budgetID } = budget;
   
+  const setLineItemArray = useSetRecoilState(lineItemAtoms({ bIndex }));
+  
+  const { budgetID } = useRecoilValue(budgetAtoms(bIndex));
+
   const url = urlFunc('lineItems', budgetID, lineItemID);
+
   const [ newLineItem, setNewLineItem ] = useState(initialForm);
+
   const { description, category, expAmount, actAmount, isFixed, isRecurring } = newLineItem;
   
-  
   const thenHandler = (res: any) => {
-    // set recoil state here;
+    console.log(res.data, budgetID);
+    setLineItemArray({type: Methods.post, payload: { ...newLineItem, lineItemID: res.data.lineItemID, budgetID }})
     setNewLineItem(initialForm)
   }
   const catchHandler = (err: Error) => {
@@ -51,9 +55,9 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
           onChange={curryConfig(LineItemActions.description)}></input>
         <input placeholder='category' value={category}
           onChange={curryConfig(LineItemActions.category)}></input>
-        <input placeholder='expected amount' value={expAmount ? expAmount.toString() : ''}
+        <input placeholder='expected amount' value={expAmount ? expAmount.toLocaleString() : ''}
           onChange={curryConfig(LineItemActions.expAmount)}></input>
-        <input placeholder='actual amount' value={actAmount ? actAmount.toString() : ''}
+        <input placeholder='actual amount' value={actAmount ? actAmount.toLocaleString() : ''}
           onChange={curryConfig(LineItemActions.actAmount)}></input>
         {/* add check boxes for recocurring and fixed */}
         Fixed?: <input type='checkbox' name='Fixed' checked={isFixed}

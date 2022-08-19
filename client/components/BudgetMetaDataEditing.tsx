@@ -2,8 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import axios from 'axios';
 import { userAtom, budgetAtoms } from './Store';
-import { FormEvent, InputEvent, Budget } from '../../types';
-import { curryFetch, urlFunc, curryChange } from './curryFuncs';
+import { FormEvent, InputEvent, Budget, DataObjects } from '../../types';
+import { curryFetch, urlFunc, curryChange } from './utils';
 import { BudgetProps, LineItemActions, Methods } from './Actions';
 
 type BudgetMetaDataEditingProps = {
@@ -15,13 +15,14 @@ type BudgetMetaDataEditingProps = {
 const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ urlConfig, bIndex, setEditing }) => {
   const userID = useRecoilValue(userAtom);
   
-  const [ budgetObject, setBudgetObject ] = useRecoilState(budgetAtoms(bIndex));
+  const [ budgetObject, setBudgetObject ] = useRecoilState<any>(budgetAtoms(bIndex));
   const { title, budget, budgetID } = budgetObject; // do not need line items right now.
 
 
-  const [ editedObject, setEditedObject ]: any = useState({});
+  const [ editedObject, setEditedObject ] = useState<DataObjects>({});
   
   const thenHandler = (res: any) => {
+    setBudgetObject({ type: Methods.patch, payload: editedObject})
     setEditedObject({})
     setEditing(false);
   }

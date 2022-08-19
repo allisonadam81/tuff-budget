@@ -70,6 +70,7 @@ const lineItemController = {
     // query the database to create a new li and return the new line item ID
     db.query(sqlQuery, params)
       .then((queryResults: any) => {
+        console.log('queryResults after putting in lineItem ', queryResults.rows)
         res.locals.lineItemID = queryResults.rows[0].id;
         return next();
       })
