@@ -10,6 +10,7 @@ export type Budget = {
   budget: number,
   lineItems: LineItemArray
 };
+
 export type LineItemType = {
   budgetID: number,
   lineItemID: number,
