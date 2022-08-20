@@ -1,15 +1,13 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import BudgetCard from './BudgetCard'
 import { BudgetArray, HandleFunctions, Budget } from '../../types';
 import { budgetArrayAtom } from './Store';
 import { useRecoilValue } from 'recoil';
 
-// type BudgetCardListProps = {
-//   budgetArray: BudgetArray
-// }
+const BudgetCardList: React.FC = () => {
 
-const BudgetCardList = (props: any) => {
-  const budgetArray = useRecoilValue(budgetArrayAtom)
+  const budgetArray: BudgetArray = useRecoilValue(budgetArrayAtom)
+  
   return (
     <>
     {budgetArray.map((budgetObject: Budget, i: number) => {

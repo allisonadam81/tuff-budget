@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { AxiosResponse } from 'axios';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { budgetAtoms, budgetPropertySelectors, userAtom } from './Store';
+import { budgetAtoms, userAtom, budgetArrayAtom } from './Store';
 import { Budget } from '../../types';
 import { curryFetch, urlFunc } from './utils';
 import BudgetMetaDataEditing from './BudgetMetaDataEditing';
@@ -11,22 +11,23 @@ type BudgetMetaDataProps = {
   bIndex: number,
 }
 
-const BudgetMetaData = ({ bIndex }: BudgetMetaDataProps) => {
+const BudgetMetaData: React.FC<BudgetMetaDataProps> = ({ bIndex }) => {
   const userID = useRecoilValue(userAtom);
   
   const [ budgetObject, setBudgetObject ] = useRecoilState(budgetAtoms(bIndex));
+
+  const [ budgetArray, setBudgetArray ] = useRecoilState(budgetArrayAtom)
+
   const { title, budget, budgetID } = budgetObject; // do not need line items right now.
 
-
-  const [editing, setEditing] = useState(false);
+  const [ editing, setEditing ] = useState<boolean>(false);
 
   const url = urlFunc('budgets', userID, budgetID)
 
   const urlConfig = curryFetch(url);
 
-  const thenHandler = (res: any) => {
-    
-    setBudgetObject({type: Methods.delete})
+  const thenHandler = (res: AxiosResponse) => {
+    setBudgetArray(prev => prev.filter((budget, i) => i !== bIndex))
   }
 
   const catchHandler = (err: Error) => console.log(err);
@@ -54,6 +55,8 @@ const BudgetMetaData = ({ bIndex }: BudgetMetaDataProps) => {
         urlConfig={urlConfig}
         bIndex={bIndex}
         setEditing={setEditing}
+        budgetObject={budgetObject}
+        setBudgetObject={setBudgetObject}
       />
     )
   }

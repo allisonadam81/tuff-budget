@@ -85,17 +85,6 @@ export const curryChange = (editedObject: any) => {
   }
 }
 
-// export const curryThen = (recoilSetter: any) => {
-//   return (...resetters: any) => {
-//     return (res: any) => {
-//       recoilSetter(res.data);
-//       if (resetters.length){
-//         resetters.forEach((resetter: any) => resetter())
-//       }
-//     }
-//   }  
-// }
-
 export const curryFetch = (url: string) => {
   return (method: keyof typeof Methods) => {
     return (dataObj: DataObjects) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import LineItem from './LineItem';
+import LineItemContainer from './LineItemContainer';
 import { useRecoilValue } from 'recoil';
 import { budgetAtoms } from './Store';
 import axios from 'axios';
@@ -18,7 +18,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ bIndex }) => {
 
 // const lineItems = useRecoilValue(budgetPropertySelectors({ bIndex, property: BudgetProps.lineItems }));
 //console.log('triggered from budget card ')
-const { lineItems } = useRecoilValue(budgetAtoms(bIndex));
+// const { lineItems } = useRecoilValue(budgetAtoms(bIndex));
   
 return (
   <div className='budget-card'>
@@ -29,12 +29,10 @@ return (
       <>
         <LineItemHeader/>
       </>
-        {lineItems.map((el: LineItemType, i: number) => <LineItem
-          key={`lineItem${el.lineItemID}`}
-          lIndex={i}
-          bIndex={bIndex}
-          />
-        )}
+        <LineItemContainer
+        key={`LineItemArray${bIndex}`}
+        bIndex={bIndex}
+        />
     </div>
 
     {/* BUDGET VS EXPECTED/SPENT DATA */}
@@ -51,5 +49,4 @@ return (
   </div>
   )
 }
-
-export default BudgetCard;
+  export default BudgetCard;

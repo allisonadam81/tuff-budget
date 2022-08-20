@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
 import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
-import { lineItemAtoms, budgetAtoms } from './Store';
-import { LineItemType, ButtonEvent, InputEvent, OnClickEvent } from '../../types';
+import { lineItemAtoms, budgetAtoms, lineItemArrayAtoms } from './Store';
+import { LineItemType, LineItemArray, ButtonEvent, InputEvent, OnClickEvent } from '../../types';
 import { urlFunc, curryFetch } from './utils';
 import LineItemEditing from './LineItemEditing';
 import { Methods } from './Actions';
@@ -9,9 +9,11 @@ import { Methods } from './Actions';
 type LineItemProps = {
   bIndex: number,
   lIndex: number,
+  setLineItemArray: any
 }
 
-const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
+const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex, setLineItemArray }) => {
+  // console.log('LINE ITEM RE RENDERED ', lIndex, bIndex)
   const indexInfo = { bIndex, lIndex };
   
   const [ lineItem, setLineItem ] = useRecoilState(lineItemAtoms(indexInfo));
@@ -20,20 +22,11 @@ const LineItem: React.FC<LineItemProps> = ({ bIndex, lIndex }) => {
   
   const url = urlFunc('lineItems', budgetID, lineItemID)
 
-
-  const colorTheme = {
-    default: 'green',
-    editing: 'green',
-    processing: 'grey'
-  };
-
-
-  const [ editing, setEditing ] = useState(false);
-  const [ theme, setTheme ] = useState(colorTheme.default);
+  const [ editing, setEditing ] = useState<boolean>(false);
 
 // const thenHandler = curryThen(setLineItem)
 const thenHandler = (res: any) => {
-  setLineItem({ type: Methods.delete })
+  setLineItemArray((prev: LineItemArray): LineItemArray => prev.filter((el: LineItemType, i) => i !== lIndex))
   return;
 }
   
@@ -65,6 +58,8 @@ const handleClick = urlConfig(Methods.delete)(null)(thenHandler)(catchHandler)
       indexInfo={indexInfo}
       setEditing={setEditing}
       editing={editing}
+      lineItem={lineItem}
+      setLineItem={setLineItem}
     />
   )}
 }

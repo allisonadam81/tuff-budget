@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useRecoilValue, useRecoilState } from 'recoil';
+import { useRecoilValue, useRecoilState, SetterOrUpdater } from 'recoil';
 import axios from 'axios';
 import { userAtom, budgetAtoms } from './Store';
 import { FormEvent, InputEvent, Budget, DataObjects } from '../../types';
@@ -9,20 +9,21 @@ import { BudgetProps, LineItemActions, Methods } from './Actions';
 type BudgetMetaDataEditingProps = {
   urlConfig: any,
   bIndex: number,
-  setEditing: any,
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>,
+  budgetObject: Budget,
+  setBudgetObject: SetterOrUpdater<Budget>
 }
 
-const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ urlConfig, bIndex, setEditing }) => {
+const BudgetMetaDataEditing: React.FC<BudgetMetaDataEditingProps> = ({ urlConfig, bIndex, setEditing, budgetObject, setBudgetObject }) => {
   const userID = useRecoilValue(userAtom);
   
-  const [ budgetObject, setBudgetObject ] = useRecoilState<any>(budgetAtoms(bIndex));
   const { title, budget, budgetID } = budgetObject; // do not need line items right now.
 
 
   const [ editedObject, setEditedObject ] = useState<DataObjects>({});
   
   const thenHandler = (res: any) => {
-    setBudgetObject({ type: Methods.patch, payload: editedObject})
+    setBudgetObject(prev => Object.assign({}, prev, editedObject))
     setEditedObject({})
     setEditing(false);
   }

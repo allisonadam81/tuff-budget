@@ -2,9 +2,9 @@ import React, { useContext, useState, useEffect, useLayoutEffect } from 'react';
 import { changeHandler, numHandler, checkHandler, urlFunc, curryFetch, curryChange } from './utils';
 import { LineItemArray, LineItemType, InputEvent, FormEvent, DataObjects } from '../../types';
 // import LineItems from './LineItems';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { budgetPropertySelectors, budgetAtoms, lineItemAtoms } from './Store';
+import { budgetAtoms, lineItemAtoms, lineItemArrayAtoms } from './Store';
 import { Methods, LineItemActions, BudgetProps } from './Actions';
 
 
@@ -17,6 +17,7 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
     description: '',
     category: '',
     budgetID: 0,
+    lineItemID: 0,
     expAmount: 0,
     actAmount: 0,
     isFixed: false,
@@ -24,20 +25,20 @@ const LineItemForm: React.FC<LineItemFormProps> = ({ bIndex }) => {
   }
   const lineItemID = 0;
   
-  const setLineItemArray = useSetRecoilState(lineItemAtoms({ bIndex }));
+  const setLineItemArray = useSetRecoilState(lineItemArrayAtoms(bIndex));
   
   const { budgetID } = useRecoilValue(budgetAtoms(bIndex));
 
   const url = urlFunc('lineItems', budgetID, lineItemID);
 
-  const [ newLineItem, setNewLineItem ] = useState(initialForm);
+  const [ newLineItem, setNewLineItem ] = useState<LineItemType>(initialForm);
 
   const { description, category, expAmount, actAmount, isFixed, isRecurring } = newLineItem;
   
-  const thenHandler = (res: any) => {
-    console.log(res.data, budgetID);
-    setLineItemArray({type: Methods.post, payload: { ...newLineItem, lineItemID: res.data.lineItemID, budgetID }})
-    setNewLineItem(initialForm)
+  const thenHandler = (res: AxiosResponse) => {
+    const { data: { lineItemID }} = res;
+    setLineItemArray(prev => [...prev, { ...newLineItem, lineItemID, budgetID }]);
+    setNewLineItem(initialForm);
   }
   const catchHandler = (err: Error) => {
     console.log(err);

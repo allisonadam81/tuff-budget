@@ -1,32 +1,32 @@
-import React, { useContext, useState, useReducer } from 'react'
+import React, { useState } from 'react'
 import { LineItemActions, Methods } from './Actions';
 import axios from 'axios';
-import { InputEvent, FormEvent } from '../../types';
-import { useRecoilValue, useRecoilState } from 'recoil';
+import { InputEvent, FormEvent, DataObjects, LineItemType } from '../../types';
+import { useRecoilValue, useRecoilState, SetterOrUpdater } from 'recoil';
 import { lineItemAtoms } from './Store';
 import { numFilter, curryChange, curryFetch } from './utils';
 
 type LineItemEditingProps = {
   indexInfo: { bIndex: number, lIndex: number }
   editing: boolean,
-  setEditing: any,
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>,
+  lineItem: LineItemType,
+  setLineItem: SetterOrUpdater<LineItemType>,
   urlConfig: any
 }
 
 
-const LineItemEditing: React.FC<LineItemEditingProps> = ({ urlConfig, setEditing, indexInfo }) => {
-
-  const [ lineItem, setLineItem ] = useRecoilState(lineItemAtoms(indexInfo));
-
+const LineItemEditing: React.FC<LineItemEditingProps> = ({ urlConfig, setEditing, indexInfo, lineItem, setLineItem }) => {
   const { description, category, expAmount, actAmount, isFixed, isRecurring, budgetID, lineItemID } = lineItem;
 
-  const [ editedObject, setEditedObject ]: any = useState({})
+
+  const [ editedObject, setEditedObject ] = useState<DataObjects>({})
   
 
   const thenHandler = (res: any) => {
-    setLineItem({type: Methods.patch, payload: editedObject})
-    setEditedObject({})
-    setEditing((Prev: boolean): boolean => false)
+    setLineItem(prev => Object.assign({}, prev, editedObject));
+    setEditedObject({});
+    setEditing(false);
   }
       
   const catchHandler = (err: Error) => console.log(err);
